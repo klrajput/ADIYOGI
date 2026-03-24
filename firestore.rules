@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Boards collection - read-only for basic board info
+    match /boards/{boardId} {
+      allow read: if true;
+      allow write: if false; // Only admins can modify boards
+    }
+    
+    // Threads collection - anonymous posting allowed
+    match /threads/{threadId} {
+      allow read: if true;
+      allow create: if isValidThread();
+      allow update: if false; // Threads cannot be edited once created
+      allow delete: if false; // Only admins can delete
+      
+      // Posts subcollection within threads
+      match /posts/{postId} {
+        allow read: if true;
+        allow create: if isValidPost();
+        allow update: if false; // Posts cannot be edited
+        allow delete: if false; // Only admins can delete
+      }
+    }
+    
+    // Crisis events - for monitoring and safety
+    match /crisisEvents/{eventId} {
+      allow read: if false; // Only backend functions can access
+      allow write: if false; // Only backend functions can write
+    }
+    
+    // Moderation reports
+    match /reports/{reportId} {
+      allow read: if false; // Only moderators
+      allow create: if isValidReport();
+      allow update, delete: if false; // Only moderators
+    }
+    
+    // Helper functions
+    function isValidThread() {
+      return request.resource.data.keys().hasAll(['content', 'boardId', 'timestamp', 'anonymous']) &&
+             request.resource.data.content is string &&
+             request.resource.data.content.size() > 0 &&
+             request.resource.data.content.size() <= 3000 &&
+             request.resource.data.boardId is string &&
+             request.resource.data.anonymous == true &&
+             request.resource.data.timestamp is timestamp;
+    }
+    
+    function isValidPost() {
+      return request.resource.data.keys().hasAll(['content', 'timestamp', 'anonymous']) &&
+             request.resource.data.content is string &&
+             request.resource.data.content.size() > 0 &&
+             request.resource.data.content.size() <= 3000 &&
+             request.resource.data.anonymous == true &&
+             request.resource.data.timestamp is timestamp;
+    }
+    
+    function isValidReport() {
+      return request.resource.data.keys().hasAll(['reason', 'timestamp']) &&
+             request.resource.data.reason is string &&
+             request.resource.data.timestamp is timestamp;
+    }
+  }
+}

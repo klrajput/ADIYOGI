@@ -1,0 +1,57 @@
+{
+  "crisis_hotlines": {
+    "primary": {
+      "name": "988 Suicide & Crisis Lifeline",
+      "number": "988",
+      "description": "Free, confidential support for people in distress and prevention resources",
+      "available": "24/7",
+      "website": "https://988lifeline.org"
+    },
+    "text": {
+      "name": "Crisis Text Line",
+      "number": "741741",
+      "keyword": "HOME",
+      "description": "Text HOME to 741741 for crisis support",
+      "available": "24/7"
+    }
+  },
+  "emergency": {
+    "name": "Emergency Services",
+    "number": "911",
+    "description": "Call if you are in immediate physical danger"
+  },
+  "specialized_support": [
+    {
+      "name": "National Suicide Prevention Lifeline",
+      "number": "1-800-273-8255",
+      "description": "Suicide prevention support"
+    },
+    {
+      "name": "SAMHSA National Helpline",
+      "number": "1-800-662-4357",
+      "description": "Treatment referral and information service"
+    },
+    {
+      "name": "Crisis Text Line",
+      "contact": "Text HOME to 741741",
+      "description": "24/7 text-based crisis support"
+    }
+  ],
+  "online_resources": [
+    {
+      "name": "National Institute of Mental Health",
+      "url": "https://www.nimh.nih.gov",
+      "description": "Mental health information and resources"
+    },
+    {
+      "name": "Mental Health America",
+      "url": "https://www.mhanational.org",
+      "description": "Mental health screening and resources"
+    },
+    {
+      "name": "Crisis Text Line",
+      "url": "https://www.crisistextline.org",
+      "description": "Free crisis counseling via text"
+    }
+  ]
+}

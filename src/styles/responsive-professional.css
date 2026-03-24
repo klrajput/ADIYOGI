@@ -1,0 +1,301 @@
+/* Professional Responsive Design - Mobile First Approach */
+
+/* ========== TABLETS & MEDIUM SCREENS (768px and up) ========== */
+@media only screen and (min-width: 768px) {
+  .main-content {
+    padding: 2.5rem;
+  }
+  
+  .chan-header {
+    padding: 2rem 2.5rem;
+  }
+  
+  .chan-header h1 {
+    font-size: 2.25rem;
+  }
+}
+
+/* ========== LARGE SCREENS (1024px and up) ========== */
+@media only screen and (min-width: 1024px) {
+  .main-content {
+    padding: 3rem;
+  }
+  
+  .chan-header {
+    padding: 2.5rem 3rem;
+  }
+  
+  .board-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ========== EXTRA LARGE SCREENS (1280px and up) ========== */
+@media only screen and (min-width: 1280px) {
+  .main-content {
+    max-width: 1280px;
+    padding: 3rem;
+  }
+  
+  .chan-header {
+    padding: 2.5rem 3rem;
+  }
+  
+  .board-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* ========== MOBILE STYLES (Below 768px) ========== */
+@media only screen and (max-width: 767px) {
+  html {
+    font-size: 15px;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  /* Header Mobile */
+  .chan-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+    gap: 0.5rem;
+  }
+  
+  .chan-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .chan-header .tagline {
+    font-size: 0.85rem;
+  }
+  
+  /* Navigation Mobile */
+  .chan-nav {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .chan-nav a {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  /* Board Grid Mobile */
+  .board-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .board-card {
+    padding: 1.25rem;
+  }
+  
+  .board-title {
+    font-size: 1.15rem;
+  }
+  
+  /* Thread List Mobile */
+  .thread-item {
+    padding: 1rem;
+  }
+  
+  .thread-title {
+    font-size: 1rem;
+  }
+  
+  .thread-preview {
+    font-size: 0.9rem;
+  }
+  
+  .thread-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .thread-stats {
+    gap: 1.5rem;
+  }
+  
+  /* Post Mobile */
+  .post-container {
+    padding: 1rem;
+  }
+  
+  .post-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .post-content {
+    font-size: 0.9rem;
+  }
+  
+  /* Form Mobile */
+  input, textarea, select,
+  button, .btn {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  button, .btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    justify-content: center;
+  }
+  
+  .form-row {
+    flex-direction: column;
+  }
+  
+  .form-group {
+    width: 100%;
+  }
+  
+  /* Footer Mobile */
+  .chan-footer {
+    padding: 1.5rem;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* ========== SMALL MOBILE PHONES (Below 480px) ========== */
+@media only screen and (max-width: 479px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .main-content {
+    padding: 0.75rem;
+  }
+  
+  .chan-header {
+    padding: 0.75rem;
+  }
+  
+  .chan-header h1 {
+    font-size: 1.25rem;
+  }
+  
+  .chan-nav {
+    padding: 0.5rem;
+  }
+  
+  .chan-nav a {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .board-card {
+    padding: 1rem;
+  }
+  
+  .thread-item {
+    padding: 0.75rem;
+  }
+  
+  .post-container {
+    padding: 0.75rem;
+  }
+  
+  button, .btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .post-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .post-action {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ========== LANDSCAPE MOBILE (Below 768px height) ========== */
+@media only screen and (max-height: 600px) and (orientation: landscape) {
+  .chan-header {
+    padding: 0.75rem 1.5rem;
+  }
+  
+  .chan-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+}
+
+/* ========== TOUCH DEVICES ========== */
+@media (hover: none) and (pointer: coarse) {
+  button, .btn, a {
+    min-height: 44px; /* Touch target size */
+    min-width: 44px;
+  }
+  
+  .post-action:active {
+    background-color: var(--primary-light);
+  }
+}
+
+/* ========== HIGH DPI SCREENS ========== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  body {
+    font-weight: 400;
+  }
+}
+
+/* ========== PRINT STYLES ========== */
+@media print {
+  .chan-header, .chan-nav, .chan-footer {
+    display: none;
+  }
+  
+  .main-content {
+    padding: 0;
+    max-width: none;
+  }
+  
+  .board-card, .thread-item, .post-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  button, .btn {
+    display: none;
+  }
+}
+
+/* ========== ACCESSIBILITY IMPROVEMENTS ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #1a202c;
+    color: #e2e8f0;
+  }
+  
+  .bg-card {
+    background-color: #2d3748;
+  }
+}

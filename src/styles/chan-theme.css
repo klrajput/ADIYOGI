@@ -1,0 +1,160 @@
+/* chan-theme.css — AdiYogi Component Styles v2 */
+/* All major styles now live in index.css. This file adds supplemental overrides. */
+
+/* Board Header */
+.board-header-section {
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(16,185,129,0.04));
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.board-header-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(245,158,11,0.08), transparent);
+  pointer-events: none;
+}
+
+/* Thread List Header */
+.thread-sort select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.thread-sort select:focus {
+  outline: none;
+  border-color: var(--brand-gold);
+}
+
+/* Board Page Layout */
+.board-page-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Guidelines Page */
+.guidelines-page section { margin-bottom: 2.5rem; }
+
+/* Crisis Page */
+.crisis-page section { margin-bottom: 2rem; }
+
+/* App Layout */
+.App {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  width: 100%;
+}
+
+/* Post Actions */
+.post-action {
+  background: none;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.6rem !important;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+  font-family: 'Inter', sans-serif;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.post-action:hover {
+  color: var(--brand-rose);
+  border-color: rgba(244,63,94,0.3) !important;
+  background: rgba(244,63,94,0.06) !important;
+  transform: none !important;
+}
+
+/* Thread Actions */
+.thread-action {
+  font-size: 0.82rem;
+  color: var(--brand-gold);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.thread-action:hover { color: var(--brand-gold-light); }
+
+/* Content Warning Badge */
+.content-warning-badge {
+  background: rgba(249,115,22,0.1);
+  color: #fed7aa;
+  border: 1px solid rgba(249,115,22,0.25);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+/* Thread Stats (sidebar) */
+.thread-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  margin: 1rem 0;
+}
+
+/* Error Boundary Styles */
+.error-boundary {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Selection */
+::selection { background: rgba(245,158,11,0.25); color: var(--text-primary); }
+
+/* Focus visible */
+:focus-visible { outline: 2px solid var(--brand-gold); outline-offset: 2px; }
+
+/* Responsive overrides */
+@media (max-width: 768px) {
+  .board-header-section { padding: 1.5rem; }
+  .thread-stats { gap: 1rem; }
+  .crisis-actions { flex-direction: column; align-items: stretch; }
+  .crisis-button { text-align: center; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .board-page-layout { padding: 0; }
+}

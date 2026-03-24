@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdiYogi Forum - Find Your Inner Peace</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-om"></i>
+                <h1>AdiYogi Forum</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-btn active" data-tab="confessions">Confessions</button>
+                <button class="nav-btn" data-tab="pov">Your POV</button>
+            </nav>
+            <div class="user-section">
+                <button id="loginBtn" class="btn btn-primary">Login</button>
+                <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Confessions Tab -->
+            <div id="confessions" class="tab-content active">
+                <div class="tab-header">
+                    <h2><i class="fas fa-heart"></i> Sacred Confessions</h2>
+                    <p>Share your deepest thoughts anonymously. These are read-only posts for reflection and peace.</p>
+                    <button id="newConfessionBtn" class="btn btn-primary" style="display: none;">
+                        <i class="fas fa-plus"></i> New Confession
+                    </button>
+                </div>
+                <div id="confessionsList" class="posts-list">
+                    <!-- Confessions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- POV Tab -->
+            <div id="pov" class="tab-content">
+                <div class="tab-header">
+                    <h2><i class="fas fa-comments"></i> Your Point of View</h2>
+                    <p>Share your perspective and engage in meaningful discussions with others.</p>
+                    <button id="newPOVBtn" class="btn btn-primary" style="display: none;">
+                        <i class="fas fa-plus"></i> New POV
+                    </button>
+                </div>
+                <div id="povList" class="posts-list">
+                    <!-- POV posts will be loaded here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Create Post Modal -->
+        <div id="createPostModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Create New Post</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="postForm">
+                        <div class="form-group">
+                            <label for="postTitle">Title</label>
+                            <input type="text" id="postTitle" required placeholder="Enter your post title...">
+                        </div>
+                        <div class="form-group">
+                            <label for="postContent">Content</label>
+                            <textarea id="postContent" rows="6" required placeholder="Share your thoughts..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="postCategory">Category</label>
+                            <select id="postCategory" required>
+                                <option value="">Select a category</option>
+                                <option value="spirituality">Spirituality</option>
+                                <option value="meditation">Meditation</option>
+                                <option value="life-lessons">Life Lessons</option>
+                                <option value="personal-growth">Personal Growth</option>
+                                <option value="relationships">Relationships</option>
+                                <option value="work-life">Work & Life Balance</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="cancelPost">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Welcome to AdiYogi Forum</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required placeholder="Enter your password">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="button" class="btn btn-secondary" id="signupBtn">Sign Up</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Detail Modal -->
+        <div id="postDetailModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h3 id="detailTitle"></h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div id="postDetailContent"></div>
+                    <div id="commentsSection" style="display: none;">
+                        <h4>Comments</h4>
+                        <div id="commentsList"></div>
+                        <form id="commentForm" style="display: none;">
+                            <div class="form-group">
+                                <textarea id="commentContent" rows="3" placeholder="Share your thoughts..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Post Comment</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

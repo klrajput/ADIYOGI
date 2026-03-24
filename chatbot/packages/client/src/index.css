@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Kalam', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  color: #37474f;
+  transition: all 0.3s ease;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Adiyogi Theme Variables */
+:root {
+  --primary-purple: #7b1fa2;
+  --secondary-gold: #d4af37;
+  --soft-blue: #e3f2fd;
+  --soft-lavender: #f3e5f5;
+  --text-primary: #37474f;
+  --text-secondary: #546e7a;
+  --accent-green: #81c784;
+}
+
+/* Hindi Text Styling */
+.hindi-text {
+  font-family: 'Kalam', sans-serif;
+  color: var(--primary-purple);
+  font-weight: 500;
+}
+
+/* English Title Styling */
+.english-title {
+  font-family: 'Cinzel', serif;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Smooth Transitions for Mental Health UX */
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Soft Button Styles */
+button {
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Styling for Mental Health Content */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+/* Accessibility Focus Styles */
+*:focus-visible {
+  outline: 2px solid var(--accent-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

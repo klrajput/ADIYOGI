@@ -1,0 +1,219 @@
+/* Responsive & Mobile-First Design */
+
+/* Mobile Devices (320px - 480px) */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .chan-header {
+    padding: 1rem 0.75rem;
+  }
+  
+  .chan-header h1 {
+    font-size: 1.2rem;
+  }
+  
+  .chan-nav {
+    padding: 0.5rem 0.75rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .chan-nav a {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .board-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .board-card {
+    padding: 1rem;
+  }
+  
+  .board-title {
+    font-size: 1rem;
+  }
+  
+  .hero-section {
+    padding: 1.5rem 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-section h2 {
+    font-size: 1.2rem;
+  }
+  
+  .thread-item {
+    padding: 1rem;
+  }
+  
+  .guidelines-list {
+    padding: 1rem;
+  }
+  
+  button,
+  .btn {
+    width: 100%;
+  }
+  
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+}
+
+/* Tablets (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+  
+  .chan-header {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .chan-header h1 {
+    font-size: 1.4rem;
+  }
+  
+  .board-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .board-card {
+    padding: 1.25rem;
+  }
+  
+  .hero-section {
+    padding: 2rem 1.5rem;
+  }
+  
+  .hero-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .thread-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .post-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Desktop (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    max-width: 1000px;
+    padding: 2rem;
+  }
+  
+  .board-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Large Desktop (1025px and above) */
+@media (min-width: 1025px) {
+  .main-content {
+    max-width: 1200px;
+    padding: 2rem;
+  }
+  
+  .board-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .btn,
+  .board-card,
+  .thread-item,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .post-action {
+    padding: 0.75rem;
+  }
+}
+
+/* Landscape Mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .hero-section {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero-section h2 {
+    font-size: 1rem;
+  }
+  
+  .hero-section p {
+    font-size: 0.8rem;
+  }
+  
+  .chan-header {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* High DPI Screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .board-card {
+    border-width: 0.5px;
+  }
+}
+
+/* Accessibility - Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Support (CSS prepared for future use) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1f2937;
+    --surface: #111827;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .chan-nav,
+  .chan-footer,
+  button,
+  .btn {
+    display: none;
+  }
+  
+  .main-content {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .board-card,
+  .thread-item,
+  .post-container {
+    page-break-inside: avoid;
+  }
+}

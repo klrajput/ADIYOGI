@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Allow access to crisis resources
+Allow: /crisis
+Allow: /resources
+Allow: /help
+
+# Prevent indexing of individual posts for privacy
+Disallow: /thread/
+Disallow: /post/
+
+# Sitemap
+Sitemap: https://mentalhealth-chan.com/sitemap.xml

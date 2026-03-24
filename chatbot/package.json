@@ -1,0 +1,24 @@
+{
+  "name": "digital-mental-health-platform",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:phase1": "npm run dev --workspace=phase1-chatbot-service",
+    "dev:client": "npm run dev --workspace=client",
+    "dev": "concurrently \"npm run dev:phase1\" \"npm run dev:client\"",
+    "test:phase1": "npm run test --workspace=phase1-chatbot-service",
+    "install:all": "npm install --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["mental-health", "chatbot", "student-support"],
+  "author": "Your Name",
+  "license": "ISC",
+  "description": "Digital Psychological Intervention System for College Students"
+}
+  

@@ -1,0 +1,202 @@
+{
+  "boards": [
+    {
+      "id": "support",
+      "name": "General Support",
+      "icon": "🤝",
+      "description": "A welcoming space for general mental health discussions, peer support, and everyday conversations about wellbeing.",
+      "supportLevel": "general",
+      "tags": ["support", "general", "wellbeing", "peer"],
+      "stats": {
+        "threads": 1832,
+        "posts": 12450,
+        "active": 31
+      },
+      "guidelines": [
+        "Be welcoming and supportive to everyone",
+        "Share your experiences and offer peer support",
+        "Respect all mental health journeys",
+        "Direct serious crises to the Crisis Support board"
+      ]
+    },
+    {
+      "id": "anxiety",
+      "name": "Anxiety & Panic",
+      "icon": "😰",
+      "description": "Support for anxiety disorders, panic attacks, social anxiety, and coping strategies",
+      "supportLevel": "peer",
+      "tags": ["anxiety", "panic", "social-anxiety", "coping"],
+      "stats": {
+        "threads": 1247,
+        "posts": 8934,
+        "active": 23
+      },
+      "guidelines": [
+        "Share your anxiety experiences without judgment",
+        "Offer practical coping techniques that have worked for you", 
+        "Be supportive of others' anxiety struggles",
+        "Avoid giving medical advice - share experiences only"
+      ]
+    },
+    {
+      "id": "depression",
+      "name": "Depression Support", 
+      "icon": "😔",
+      "description": "A space for depression support, understanding, and recovery discussions",
+      "supportLevel": "peer",
+      "tags": ["depression", "mood", "recovery", "support"],
+      "stats": {
+        "threads": 892,
+        "posts": 6234,
+        "active": 18
+      },
+      "guidelines": [
+        "Share your depression journey openly and honestly",
+        "Support others without trying to 'fix' them",
+        "Share what helps you cope with low moods",
+        "Remember that recovery looks different for everyone"
+      ]
+    },
+    {
+      "id": "trauma", 
+      "name": "Trauma & PTSD",
+      "icon": "💔",
+      "description": "Support for trauma survivors, PTSD, and healing discussions",
+      "supportLevel": "peer",
+      "tags": ["trauma", "ptsd", "healing", "recovery"],
+      "stats": {
+        "threads": 634,
+        "posts": 4521,
+        "active": 12
+      },
+      "guidelines": [
+        "Use content warnings for potentially triggering content",
+        "Share healing strategies that have helped you",
+        "Be extra gentle and supportive in responses",
+        "Respect others' boundaries and healing process"
+      ]
+    },
+    {
+      "id": "addiction",
+      "name": "Addiction & Recovery",
+      "icon": "🔄", 
+      "description": "Support for addiction recovery, sobriety, and substance abuse issues",
+      "supportLevel": "peer",
+      "tags": ["addiction", "recovery", "sobriety", "substance-abuse"],
+      "stats": {
+        "threads": 445,
+        "posts": 3234,
+        "active": 15
+      },
+      "guidelines": [
+        "Share your recovery journey and milestones",
+        "Support others in their recovery process",
+        "Avoid glorifying substance use",
+        "Celebrate sobriety milestones, big and small"
+      ]
+    },
+    {
+      "id": "relationships",
+      "name": "Relationships & Social",
+      "icon": "💕",
+      "description": "Support for relationship issues, family problems, and social difficulties",
+      "supportLevel": "general", 
+      "tags": ["relationships", "family", "social", "communication"],
+      "stats": {
+        "threads": 756,
+        "posts": 5123,
+        "active": 19
+      },
+      "guidelines": [
+        "Share relationship challenges respectfully",
+        "Offer constructive advice and support",
+        "Respect all types of relationships and families",
+        "Focus on healthy communication strategies"
+      ]
+    },
+    {
+      "id": "success",
+      "name": "Success Stories",
+      "icon": "✨",
+      "description": "Share victories, milestones, and positive progress in mental health",
+      "supportLevel": "peer",
+      "tags": ["success", "victories", "progress", "inspiration"],
+      "stats": {
+        "threads": 234,
+        "posts": 1876,
+        "active": 8
+      },
+      "guidelines": [
+        "Celebrate your mental health victories, big and small",
+        "Share what helped you achieve progress",
+        "Inspire others with your recovery story",
+        "Remember that progress isn't always linear"
+      ]
+    },
+    {
+      "id": "crisis",
+      "name": "Crisis Support",
+      "icon": "🚨",
+      "description": "Immediate peer support for mental health crises (not a substitute for professional help)",
+      "supportLevel": "crisis",
+      "tags": ["crisis", "emergency", "immediate-help", "support"],
+      "stats": {
+        "threads": 123,
+        "posts": 892,
+        "active": 6
+      },
+      "guidelines": [
+        "This board is for immediate peer support only",
+        "Always encourage professional help for crises",
+        "Be extra supportive and non-judgmental",
+        "Include crisis resources in responses when appropriate"
+      ]
+    },
+    {
+      "id": "resources",
+      "name": "Resources & Tools", 
+      "icon": "📚",
+      "description": "Share mental health resources, apps, books, and helpful tools",
+      "supportLevel": "general",
+      "tags": ["resources", "tools", "apps", "books"],
+      "stats": {
+        "threads": 345,
+        "posts": 2134,
+        "active": 11
+      },
+      "guidelines": [
+        "Share helpful mental health resources you've found",
+        "Include brief reviews or descriptions",
+        "Focus on free/accessible resources when possible",
+        "No promotion of paid services or products"
+      ]
+    }
+  ],
+  "rules": {
+    "general": [
+      "Be respectful and kind to all community members",
+      "No personal attacks, harassment, or discrimination",
+      "Keep discussions focused on mental health support",
+      "Respect anonymity - don't try to identify users",
+      "Use content warnings for potentially triggering content",
+      "No medical advice - share experiences only",
+      "Report harmful or inappropriate content",
+      "This community supplements but doesn't replace professional help"
+    ],
+    "posting": [
+      "Stay anonymous - don't share identifying information",
+      "Use clear, descriptive thread titles",
+      "Keep posts relevant to the board topic",
+      "Be constructive in your responses",
+      "Include content warnings when needed",
+      "Avoid excessive venting without seeking support"
+    ],
+    "crisis": [
+      "Call 988 (Suicide & Crisis Lifeline) for immediate help",
+      "Text HOME to 741741 for crisis text support",
+      "Call 911 if you're in immediate physical danger",
+      "This forum provides peer support, not crisis intervention",
+      "Always encourage professional help for serious crises"
+    ]
+  }
+}
