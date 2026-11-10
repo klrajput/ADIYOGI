@@ -86,7 +86,11 @@ replySchema.methods.toPublicJSON = function toPublicJSON(options = {}) {
     thread: refId(this.thread),
     body: this.body,
     contentWarning: this.contentWarning,
-    author: { alias: this.authorAlias, type: this.authorType },
+    // Anonymous authors never expose a username (legacy rows stored "Seeker XXXX").
+    author: {
+      alias: this.authorType === 'anonymous' ? 'Anonymous' : this.authorAlias,
+      type: this.authorType,
+    },
     status: this.status,
     createdAt: this.createdAt,
     editedAt: this.editedAt,

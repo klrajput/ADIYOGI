@@ -121,7 +121,7 @@ async function createThreadRecord(options) {
     authorType: options.authorType || 'anonymous',
     authorId: options.sessionId,
     authorModel: 'Session',
-    authorAlias: options.alias || 'Seeker 0001',
+    authorAlias: options.alias || 'Anonymous',
     status: options.status || 'published',
   });
 }
@@ -140,7 +140,7 @@ async function createReplyRecord(options) {
     authorType: options.authorType || 'anonymous',
     authorId: options.sessionId,
     authorModel: 'Session',
-    authorAlias: options.alias || 'Seeker 0002',
+    authorAlias: options.alias || 'Anonymous',
     status: options.status || 'published',
   });
 }

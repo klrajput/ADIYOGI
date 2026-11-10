@@ -344,3 +344,21 @@ describe('thread lifecycle', () => {
     expectError(res, 422, 'CONTENT_BLOCKED');
   });
 });
+
+
+describe('anonymous authorship display', () => {
+  it('never exposes a username for anonymous authors, including legacy aliases', async () => {
+    const { agent, board } = await agentWithBoard();
+
+    const { thread } = await createThread(agent, board.slug);
+    expect(thread.author.alias).toBe('Anonymous');
+
+    // Simulate a legacy row that still stores a generated "Seeker XXXX" alias on disk.
+    const Thread = factories.model('Thread');
+    await Thread.updateOne({ _id: thread.id }, { $set: { authorAlias: 'Seeker 9F2A' } });
+
+    const fetched = await agent.get(`/api/v1/threads/${thread.id}`).set('Accept', 'application/json');
+    const body = expectSuccess(fetched);
+    expect(body.thread.author.alias).toBe('Anonymous');
+  });
+});

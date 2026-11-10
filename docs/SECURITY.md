@@ -93,7 +93,7 @@ The API assumes TLS is terminated by the hosting platform (Render/Railway/Fly/ng
 |---|---|---|
 | Creation | `POST /api/v1/auth/session` | `POST /auth/register`, `POST /auth/login` |
 | Creation credential | none (server generates) | email + password (bcrypt cost 12) |
-| Stored as | `Session { kind:'anonymous', alias:'Seeker XXXX' }` | `Session { kind:'user', user: ObjectId }` + `User` |
+| Stored as | `Session { kind:'anonymous', alias:'Anonymous' }` — anonymous authors are never given a username | `Session { kind:'user', user: ObjectId }` + `User.displayName` |
 | PII | none | email, optional display name |
 | Role | always `member`, derived in middleware | `User.role` (`member`/`moderator`/`admin`), read from DB |
 | Purpose | forum/chat participation with zero PII | moderator/admin operation, optional member accounts |

@@ -37,7 +37,7 @@ tests. Nothing here is a mock or a placeholder.
 
 ### Anonymous community forum
 - **Anonymous-first identity** — the server issues an anonymous session (no email, no name); posts
-  are attributed to a generated alias such as `Seeker 4F2A`. No registration required to read,
+  are shown simply as **Anonymous** (no username is assigned). No registration required to read,
   post, reply, chat or use crisis tools.
 - **Boards** with descriptions, support level (general / peer / crisis), guidelines, tags and live
   thread/reply counters.

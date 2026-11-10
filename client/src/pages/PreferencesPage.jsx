@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Alert from '../components/ui/Alert';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
@@ -102,7 +102,7 @@ export default function PreferencesPage() {
     setSaveError(null);
     try {
       await updatePreferences({
-        displayAlias: form.displayAlias.trim(),
+        ...(identity.kind === 'user' ? { displayAlias: form.displayAlias.trim() } : {}),
         showCrisisBar: form.showCrisisBar,
         contentWarningDefault: form.contentWarningDefault,
         reduceMotion: form.reduceMotion,
@@ -185,13 +185,13 @@ export default function PreferencesPage() {
         <PageHeader
           eyebrow="Privacy and your data"
           title="Preferences"
-          description="Your alias, safety notices and accessibility options. These settings belong to your server-issued session — there is no public profile."
+          description="Safety notices, accessibility options and — if you have an account — your display name. Anonymous sessions have no username and no public profile."
         />
 
         <form onSubmit={handleSave} className="card p-5 sm:p-6" noValidate>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
             <div>
-              <h2 className="font-serif text-xl text-ink">How AdiYogi appears to you</h2>
+              <h2 className="font-serif text-xl text-ink">Safety and display settings</h2>
               <p className="mt-1 text-sm text-ink-muted">
                 You are using an {identity.kind === 'anonymous' ? 'anonymous session' : 'account'}.
               </p>
@@ -209,15 +209,32 @@ export default function PreferencesPage() {
           ) : null}
 
           <div className="mt-5">
-            <Input
-              label="Display alias"
-              value={form.displayAlias}
-              onChange={(event) => setForm((current) => ({ ...current, displayAlias: event.target.value }))}
-              maxLength={ALIAS_MAX}
-              error={fieldErrors.displayAlias}
-              hint="This is the name attached to everything you post. It does not need to be your real name."
-              autoComplete="nickname"
-            />
+            {identity.kind === 'user' ? (
+              <Input
+                label="Display name"
+                value={form.displayAlias}
+                onChange={(event) => setForm((current) => ({ ...current, displayAlias: event.target.value }))}
+                maxLength={ALIAS_MAX}
+                error={fieldErrors.displayAlias}
+                hint="The name attached to your posts and replies. It does not need to be your real name."
+                autoComplete="nickname"
+              />
+            ) : (
+              <div className="rounded-xl border border-line bg-paper/70 p-4">
+                <p className="flex items-center gap-2 text-sm font-semibold text-ink">
+                  <Icon name="lock" className="h-4 w-4 text-primary-700" />
+                  No username — you are anonymous
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+                  Your posts and replies are shown as <strong className="font-semibold text-ink">Anonymous</strong>.
+                  AdiYogi does not assign you a name, and nothing is shown publicly until you choose to
+                  create an account.
+                </p>
+                <Link to="/login?mode=register" className="link mt-3 inline-block text-sm font-medium">
+                  Create an account to choose a display name
+                </Link>
+              </div>
+            )}
           </div>
 
           <fieldset className="mt-2 space-y-1 border-t border-line pt-5">

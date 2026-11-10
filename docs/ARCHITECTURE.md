@@ -179,10 +179,10 @@ Versioning: future breaking changes go to `/api/v2`.
   "id": "public-anon-id-or-user-id",
   "kind": "anonymous" | "user",
   "role": "member" | "moderator" | "admin",
-  "alias": "Seeker 4F2A",
+  "alias": "Anonymous",
   "createdAt": "ISO",
   "isAnonymous": true,
-  "preferences": { "displayAlias": "Seeker 4F2A", "showCrisisBar": true, "contentWarningDefault": false, "reduceMotion": false }
+  "preferences": { "displayAlias": "Anonymous", "showCrisisBar": true, "contentWarningDefault": false, "reduceMotion": false }
 }
 ```
 

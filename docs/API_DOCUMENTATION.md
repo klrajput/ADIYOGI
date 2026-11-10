@@ -130,11 +130,11 @@ Two server-issued identity kinds. The browser never mints or supplies an identit
   "id": "665f1c2ab1d4c3e5f6a7b8c9",
   "kind": "anonymous",
   "role": "member",
-  "alias": "Seeker 4F2A",
+  "alias": "Anonymous",
   "createdAt": "2026-04-20T09:12:33.000Z",
   "isAnonymous": true,
   "preferences": {
-    "displayAlias": "Seeker 4F2A",
+    "displayAlias": "Anonymous",
     "showCrisisBar": true,
     "contentWarningDefault": false,
     "reduceMotion": false
@@ -321,7 +321,7 @@ Thread object (`status ∈ {published, hidden, removed, deleted}`):
 {
   "id": "665f...", "boardSlug": "anxiety", "boardName": "Anxiety & Overthinking",
   "title": "...", "body": "...", "excerpt": "...",
-  "contentWarning": false, "tags": ["sleep"], "author": { "alias": "Seeker 4F2A", "type": "anonymous" },
+  "contentWarning": false, "tags": ["sleep"], "author": { "alias": "Anonymous", "type": "anonymous" },
   "status": "published", "isPinned": false, "isLocked": false, "replyCount": 2, "viewCount": 14,
   "lastActivityAt": "2026-04-20T09:30:00.000Z", "editedAt": null, "createdAt": "2026-04-20T09:12:33.000Z",
   "isOwner": true, "canEdit": true, "canDelete": true

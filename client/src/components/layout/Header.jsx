@@ -52,7 +52,7 @@ function NotificationsLink({ count }) {
  * never by an unexplained "Reconnect" button in the corner.
  */
 export default function Header() {
-  const { identity, loading, isModerator, isAnonymous } = useIdentity();
+  const { identity, loading, isModerator } = useIdentity();
   const { count } = useUnreadNotifications({ enabled: Boolean(identity) });
   const [menuOpen, setMenuOpen] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
@@ -217,21 +217,6 @@ export default function Header() {
 
             {showAuthLinks ? (
               <div className="flex items-center gap-1.5">
-                {isAnonymous ? (
-                  <Link
-                    to="/preferences"
-                    className="hidden items-center gap-2 rounded-full border border-line bg-surface py-1 pl-1 pr-3 text-sm text-ink-soft transition-colors hover:border-accent-300 hover:text-ink xl:inline-flex [@media(pointer:coarse)]:min-h-[2.5rem]"
-                    aria-label={`Your anonymous alias, ${alias || 'anonymous'}. Open preferences`}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-800"
-                    >
-                      {initials(alias) || <Icon name="user" className="h-4 w-4" />}
-                    </span>
-                    <span className="max-w-[8rem] truncate font-medium">{alias || 'Anonymous'}</span>
-                  </Link>
-                ) : null}
                 <Link
                   to="/login"
                   state={{ from: location.pathname }}

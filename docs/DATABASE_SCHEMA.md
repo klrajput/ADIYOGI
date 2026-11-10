@@ -587,7 +587,7 @@ no server data to recover, so migration is an **export → transform → validat
    | `tags` | `tags` (lowercase, trim, max 6) |
    | `timestamp` | leave to `createdAt` (timestamps are server-owned) |
    | `anonymous` (always true) | `authorType: 'anonymous'` |
-   | — (new) | create one migration `Session` per legacy author/browser and use its `_id` as `authorId`, `authorModel: 'Session'`, `authorAlias` like `Seeker 4F2A` |
+   | — (new) | create one migration `Session` per legacy author/browser and use its `_id` as `authorId`, `authorModel: 'Session'`, `authorAlias: 'Anonymous'` (anonymous authors have no username) |
    | `replyCount` | **do not import — recompute** after inserting replies |
    | `posts[]` | `Reply` rows with `thread` ref; never nest them in the document |
 

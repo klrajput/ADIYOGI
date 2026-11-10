@@ -153,7 +153,11 @@ threadSchema.methods.toPublicJSON = function toPublicJSON(options = {}) {
     excerpt: this.excerpt,
     contentWarning: this.contentWarning,
     tags: Array.isArray(this.tags) ? [...this.tags] : [],
-    author: { alias: this.authorAlias, type: this.authorType },
+    // Anonymous authors never expose a username (legacy rows stored "Seeker XXXX").
+    author: {
+      alias: this.authorType === 'anonymous' ? 'Anonymous' : this.authorAlias,
+      type: this.authorType,
+    },
     status: this.status,
     isPinned: this.isPinned,
     isLocked: this.isLocked,

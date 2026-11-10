@@ -150,14 +150,22 @@ export default function MobileNav({ open, onClose }) {
               <div className="mb-2 flex items-center gap-2 px-3">
                 <span
                   aria-hidden="true"
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-800"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-800"
                 >
-                  {initials(alias) || <Icon name="user" className="h-4 w-4" />}
+                  {identity.kind === 'user' ? (
+                    initials(alias) || <Icon name="user" className="h-4 w-4" />
+                  ) : (
+                    <Icon name="lock" className="h-4 w-4" />
+                  )}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-ink">{alias || 'Anonymous'}</p>
+                  <p className="truncate text-sm font-medium text-ink">
+                    {identity.kind === 'anonymous' ? 'Browsing anonymously' : alias || 'Account'}
+                  </p>
                   <p className="text-xs text-ink-muted">
-                    {identity.kind === 'anonymous' ? 'Anonymous session' : 'Signed-in account'}
+                    {identity.kind === 'anonymous'
+                      ? 'No username is shown on your posts'
+                      : 'Signed-in account'}
                   </p>
                 </div>
               </div>

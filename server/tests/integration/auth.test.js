@@ -52,7 +52,8 @@ describe('POST /auth/session — anonymous bootstrap', () => {
     expect(identity.kind).toBe('anonymous');
     expect(identity.role).toBe('member');
     expect(identity.isAnonymous).toBe(true);
-    expect(identity.alias).toMatch(/^Seeker /);
+    // Anonymous visitors are never given a username.
+    expect(identity.alias).toBe('Anonymous');
     expect(new Date(identity.createdAt).toISOString()).toBe(identity.createdAt);
     expect(identity.preferences).toEqual(
       expect.objectContaining({

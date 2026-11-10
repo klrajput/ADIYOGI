@@ -11,7 +11,6 @@
  * stored only as SHA-256 (`Session.tokenHash`). Access tokens are short-lived JWTs in
  * `ay_at`; CSRF uses the signed double-submit cookie handled by middleware/csrf.
  */
-const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Session = require('../models/Session');
@@ -23,6 +22,7 @@ const { setSessionCookies } = require('../utils/cookies');
 const { hashIp } = require('../utils/redact');
 const userService = require('./userService');
 
+const ANONYMOUS_DISPLAY_NAME = 'Anonymous';
 const BCRYPT_ROUNDS = 12;
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
@@ -38,16 +38,17 @@ const ROTATE_REMAINING_MS = 24 * 60 * 60 * 1000;
 const TIMING_EQUALIZER_HASH = '$2a$12$NoTerX/8f8OPkKJAxYI4F.3DYJudAoVDcjjof2K8dk3iMldiVF716';
 
 /**
- * Random display alias, e.g. `Seeker 4F2A` (§4.3). Generated server-side from crypto.
+ * Display name for an identity.
+ *
+ * Anonymous visitors have NO username: every anonymous author is displayed as
+ * "Anonymous" until they create an account. Accounts use their chosen display name.
  * @param {'anonymous'|'user'} kind
  * @param {string} [displayName]
  * @returns {string}
  */
 function generateAlias(kind, displayName) {
-  if (kind === 'user' && displayName) return displayName.trim().slice(0, 40);
-  // Exactly four half-byte symbols, e.g. "Seeker 4F2A" (docs/ARCHITECTURE.md §4.3).
-  const suffix = crypto.randomBytes(2).toString('hex').toUpperCase();
-  return `${kind === 'user' ? 'Member' : 'Seeker'} ${suffix}`;
+  if (kind === 'user') return (displayName || 'Member').trim().slice(0, 40) || 'Member';
+  return ANONYMOUS_DISPLAY_NAME;
 }
 
 /**
@@ -143,7 +144,11 @@ function buildIdentity(session, user, preferences) {
     id: user ? String(user._id) : String(session._id),
     kind: session.kind,
     role: user ? user.role : 'member',
-    alias: session.alias,
+    // Legacy anonymous sessions stored a generated alias; never expose a username now.
+    alias:
+      session.kind === 'anonymous'
+        ? ANONYMOUS_DISPLAY_NAME
+        : session.alias || (user && user.displayName) || 'Member',
     createdAt: createdAtIso,
     isAnonymous: session.kind === 'anonymous',
     preferences: preferences ? preferences.toPublicJSON() : {},
