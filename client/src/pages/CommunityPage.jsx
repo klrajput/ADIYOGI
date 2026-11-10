@@ -5,8 +5,12 @@ import ErrorState from '../components/ui/ErrorState';
 import { LoadingBlock } from '../components/ui/Spinner';
 import PageHeader from '../components/common/PageHeader';
 import BoardCard from '../components/forum/BoardCard';
-import ThreadListItem from '../components/forum/ThreadListItem';
+import DiscussionCard from '../components/forum/DiscussionCard';
+import ShlokaCard from '../components/shloka/ShlokaCard';
+import Reveal from '../components/motion/Reveal';
 import { Icon } from '../components/common/Icons';
+import { WELLNESS_CATEGORIES } from '../data/wellnessCategories';
+import { shlokaOfTheDay } from '../data/shlokas';
 import { boards, threads } from '../api/endpoints';
 import useApiResource from '../hooks/useApiResource';
 import usePageTitle from '../hooks/usePageTitle';
@@ -55,6 +59,7 @@ export default function CommunityPage() {
   return (
     <div className="container-page py-10 sm:py-14">
       <PageHeader
+        atmosphere="nature"
         eyebrow="Community"
         title="Find the room that fits"
         description="Every board is a different kind of space, with its own guidelines. Reading is always allowed — you can take part when it feels right."
@@ -70,6 +75,18 @@ export default function CommunityPage() {
           </>
         }
       />
+
+      <div className="mb-10 -mt-2 flex gap-2 overflow-x-auto pb-2 no-scrollbar" aria-label="Wellness spaces">
+        {WELLNESS_CATEGORIES.map((category) => (
+          <Link
+            key={category.slug}
+            to={`/boards/${encodeURIComponent(category.boardSlug)}`}
+            className="chip shrink-0 border-line bg-surface/80 px-3.5 py-1.5 backdrop-blur"
+          >
+            {category.name}
+          </Link>
+        ))}
+      </div>
 
       <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
         <div>
@@ -109,7 +126,7 @@ export default function CommunityPage() {
                   }
                 />
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                   {boardList.map((board) => (
                     <BoardCard key={board.slug} board={board} />
                   ))}
@@ -149,11 +166,13 @@ export default function CommunityPage() {
                   }
                 />
               ) : (
-                <ul className="card overflow-hidden">
-                  {recentThreads.map((thread) => (
-                    <ThreadListItem key={thread.id} thread={thread} showBoard />
+                <div className="grid gap-5 md:grid-cols-2">
+                  {recentThreads.map((thread, index) => (
+                    <Reveal key={thread.id} delay={index * 50} className="h-full">
+                      <DiscussionCard thread={thread} />
+                    </Reveal>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </section>
@@ -187,6 +206,13 @@ export default function CommunityPage() {
               Read the reporting process
             </Link>
           </div>
+
+          <ShlokaCard
+            shloka={shlokaOfTheDay()}
+            compact
+            showTransliteration={false}
+            note="Wisdom for reflection. Community and verse never replace professional care."
+          />
 
           <p className="px-1 text-xs leading-relaxed text-ink-muted">{PEER_SUPPORT_DISCLAIMER}</p>
         </aside>

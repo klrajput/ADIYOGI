@@ -318,7 +318,9 @@ export default function ChatPage() {
   );
 
   return (
-    <div className="container-page py-4 sm:py-6">
+    <div className="relative">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-sage-mist opacity-70" />
+      <div className="container-page relative py-4 sm:py-6">
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[19rem_minmax(0,1fr)] lg:items-start">
         <aside
           className="hidden h-[calc(100vh-9rem)] overflow-hidden rounded-lg border border-line bg-surface shadow-card lg:block"
@@ -508,6 +510,7 @@ export default function ChatPage() {
           </p>
         )}
       </Modal>
+      </div>
     </div>
   );
 }

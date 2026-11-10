@@ -6,6 +6,10 @@ import {
   WELLNESS_DISCLAIMER,
   WELLNESS_RESOURCES,
 } from '../data/wellnessResources';
+import ShlokaCard from '../components/shloka/ShlokaCard';
+import CategoryAtmosphere from '../components/categories/CategoryAtmosphere';
+import Reveal from '../components/motion/Reveal';
+import { SHLOKAS } from '../data/shlokas';
 
 const ALL = 'all';
 
@@ -112,16 +116,22 @@ export default function ResourcesPage() {
 
   return (
     <div id="library-top" className="container-page py-6 sm:py-10">
-      <header className="max-w-prose">
-        <p className="eyebrow">Wellness library</p>
-        <h1 className="mt-2 font-serif text-3xl text-ink sm:text-4xl">
-          Things that help, explained honestly
-        </h1>
-        <p className="mt-3 text-base leading-relaxed text-ink-soft">
-          Plain-language education about anxiety, low mood, sleep, grounding and supporting other
-          people. Written to be accurate and calm — not to diagnose anyone. Everything here is
-          general information, and none of it replaces a conversation with a professional.
-        </p>
+      <header className="relative mb-6 overflow-hidden rounded-3xl border border-line bg-surface px-6 py-8 shadow-card sm:px-8">
+        <div aria-hidden="true" className="absolute inset-0">
+          <CategoryAtmosphere atmosphere="nature" />
+        </div>
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/85 to-surface/30" />
+        <div className="relative max-w-prose">
+          <p className="eyebrow-divine">Wellness library</p>
+          <h1 className="mt-2 font-serif text-3xl leading-tight text-ink sm:text-4xl">
+            Things that help, explained honestly
+          </h1>
+          <p className="mt-3 text-base leading-relaxed text-ink-soft">
+            Plain-language education about anxiety, low mood, sleep, grounding and supporting other
+            people. Written to be accurate and calm — not to diagnose anyone. Everything here is
+            general information, and none of it replaces a conversation with a professional.
+          </p>
+        </div>
       </header>
 
       {/* Persistent help CTA */}
@@ -136,6 +146,31 @@ export default function ResourcesPage() {
           </Link>
         </div>
       </div>
+
+      <section id="wisdom" aria-labelledby="resources-wisdom-title" className="mt-10">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="eyebrow-divine">Wisdom for reflection</p>
+            <h2 id="resources-wisdom-title" className="mt-2 font-serif text-2xl text-ink">
+              Verses to sit with
+            </h2>
+            <p className="mt-2 max-w-prose text-sm leading-relaxed text-ink-muted">
+              Two short passages people often return to. Reflection can steady a difficult moment —
+              it is not treatment and does not replace professional care.
+            </p>
+          </div>
+          <Link to="/crisis" className="link shrink-0 text-sm">
+            Need help now?
+          </Link>
+        </div>
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          {SHLOKAS.slice(0, 2).map((shloka, index) => (
+            <Reveal key={shloka.id} delay={index * 80}>
+              <ShlokaCard shloka={shloka} compact showTransliteration={false} />
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:items-start">
         <aside className="lg:sticky lg:top-24">

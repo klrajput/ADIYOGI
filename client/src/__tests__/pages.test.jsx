@@ -148,9 +148,11 @@ describe('LandingPage', () => {
     renderPage(<LandingPage />);
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: /a quiet place to be heard/i })
+      await screen.findByRole('heading', { level: 1, name: /find stillness within/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(BOARD.name)).toBeInTheDocument();
+    // The board name may appear both in the board directory and on a recent discussion
+    // card's category label — assert it renders without requiring a single instance.
+    expect(screen.getAllByText(BOARD.name).length).toBeGreaterThan(0);
 
     const text = document.body.textContent;
     // No invented social proof or "live activity" numbers.
