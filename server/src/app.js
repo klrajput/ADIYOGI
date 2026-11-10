@@ -14,7 +14,7 @@ const { requireCsrf } = require('./middleware/csrf');
 const { loadIdentity } = require('./middleware/auth');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 const apiRouter = require('./routes/v1');
-const healthRouter = require('./routes/v1/health.routes');
+const healthRoutes = require('./routes/v1/health.routes');
 const docsRouter = require('./routes/v1/docs.routes');
 
 /**
@@ -44,7 +44,9 @@ function createApp() {
   app.use(loadIdentity);
 
   // Health checks stay unversioned and are never rate-limited per-session.
-  app.use(healthRouter);
+  app.get('/health', healthRoutes.liveness);
+  app.get('/healthz', healthRoutes.liveness);
+  app.get('/health/ready', healthRoutes.readiness);
 
   // API surface: CSRF is enforced for every state-changing request.
   app.use(env.apiBasePath, requireCsrf, apiRouter);

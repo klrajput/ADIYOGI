@@ -407,7 +407,6 @@ MONGODB_DB_NAME=adiyogi
 # --- client ---
 CLIENT_URL=http://localhost:5173
 CLIENT_URLS=
-CORS_ALLOW_NULL_ORIGIN=false
 
 # --- auth / crypto (generate: openssl rand -hex 32) ---
 JWT_SECRET=
@@ -416,6 +415,7 @@ ACCESS_TOKEN_TTL_MIN=15
 SESSION_TTL_DAYS=30
 COOKIE_DOMAIN=
 COOKIE_SECURE=false
+COOKIE_SAMESITE=lax
 
 # --- AI (server only; never expose to the browser build) ---
 AI_PROVIDER=gemini
@@ -556,3 +556,114 @@ Each file default-exports an `express.Router`; the orchestrator mounts them in `
 - `endpoints.js` — one function per endpoint group: `auth`, `boards`, `threads`, `replies`,
   `reports`, `moderation`, `notifications`, `users`, `chat`, `crisis`. No component calls
   `fetch` directly.
+
+### 12.7 Model serialization contract (frozen)
+
+Every model exposes an instance method `toPublicJSON(options = {})` that returns a plain object
+safe to send to a browser. `options.viewerId` is the caller's ownership id:
+**`identity.userId` for accounts, `identity.sessionId` for anonymous sessions** (always a string;
+compare with `String(doc.authorId) === String(viewerId)`). Internal fields (`__v`, `authorId`,
+`authorModel`, `moderatedBy`, `tokenHash`, `passwordHash`, `email`, `ipHash`) must never appear.
+
+| Model | `toPublicJSON()` shape |
+|---|---|
+| `Board` | `{id, slug, name, description, icon, supportLevel, guidelines, tags, order, threadCount, replyCount, lastActivityAt, createdAt}` |
+| `Thread` | `{id, boardSlug, boardName?, title, body, excerpt, contentWarning, tags, author:{alias, type}, status, isPinned, isLocked, replyCount, viewCount, lastActivityAt, editedAt, createdAt, isOwner, canEdit, canDelete}` |
+| `Reply` | `{id, thread, body, contentWarning, author:{alias, type}, status, createdAt, editedAt, isOwner, canDelete}` |
+| `Conversation` | `{id, title, messageCount, lastMessageAt, riskLevel, status, createdAt}` |
+| `ChatMessage` | `{id, conversation, role, content, riskLevel, aiProvider, aiModel, createdAt}` |
+| `Report` | `{id, targetType, targetId, targetThread, reason, details, status, createdAt, isOwner}` |
+| `Notification` | `{id, type, message, thread, reply, read, createdAt}` |
+| `User` | `{id, email, role, displayName, status, createdAt}` |
+| `UserPreference` | `{displayAlias, showCrisisBar, contentWarningDefault, reduceMotion, updatedAt}` |
+| `ModerationAction` | `{id, action, targetType, targetId, reportId, reason, moderator:{id, displayName}, createdAt}` |
+| `CrisisEvent`, `Session` | never serialized to clients |
+
+`canEdit` = owner AND thread status `published` AND `createdAt` within 15 minutes.
+`canDelete` = owner OR moderator/admin (the controller decides by role).
+`author.alias` is the anonymous display alias stored on the document at creation time
+(`authorAlias`); `author.type` is `authorType`.
+
+### 4.4 Canonical `data` keys (frozen)
+
+Response payloads are wrapped in **named keys** so clients never guess. `DELETE` endpoints return
+`204` with no body. Collections always add the pagination `meta` block from §4.1.
+
+| Endpoint | `data` |
+|---|---|
+| `POST /auth/session` `GET /auth/me` `POST /auth/register` `POST /auth/login` `POST /auth/refresh` | `{ identity }` |
+| `GET /auth/csrf` | `{ csrfToken }` |
+| `GET/PATCH /users/me/preferences` | `{ preferences }` |
+| `GET /users/me/content` | `{ threads }` or `{ replies }` + meta |
+| `GET /boards` | `{ boards }`; `GET /boards/:slug` → `{ board }`; `POST/PATCH` → `{ board }` |
+| `GET /threads` | `{ threads }` + meta; `POST /threads` → `201 { thread, support? }` |
+| `GET/PATCH /threads/:id` | `{ thread }` |
+| `GET /threads/:id/replies` | `{ replies }` + meta; `POST` → `201 { reply, support? }` |
+| `POST /reports` | `201 { report }`; `GET /reports` → `{ reports }` + meta; `PATCH /reports/:id` → `{ report }` |
+| `GET /moderation/queue` | `{ reports, hiddenThreads, hiddenReplies }` + meta |
+| `POST /moderation/actions` | `{ moderationAction, target? }`; `GET /moderation/actions` → `{ actions }` + meta |
+| `GET /moderation/stats` | `{ stats }` |
+| `GET /chat/conversations` | `{ conversations }` + meta; `POST` → `201 { conversation }` |
+| `GET /chat/conversations/:id` | `{ conversation, messages }` + meta |
+| `POST /chat/conversations/:id/messages` | `{ userMessage, assistantMessage, risk, ai, resources? }` |
+| `GET /crisis/resources` | `{ resources }` |
+| `POST /crisis/assess` | `{ assessment: { level, showResources, reasons, score } }` |
+| `POST /crisis/events` | `{ acknowledged, resources }` |
+| `GET /notifications` | `{ notifications }` + meta; `meta.unreadCount` MUST respect the filter |
+| `PATCH /notifications/:id/read` | `{ notification }`; `POST /notifications/read-all` → `{ updated }` |
+| `GET /health`, `/healthz`, `/health/ready` | `{ status, uptime, version, env }` |
+
+`support` (thread/reply creation only) = `{ level, showResources }` when the server-side assessment
+is `elevated` or `high`; it is advice for the UI (show a support card), never a label on the user
+and never persisted on the content document.
+
+### 4.5 Frozen enum decisions (orchestrator)
+
+- `Report.reason` = **exactly** `spam | harassment | self_harm_risk | graphic | medical_misinformation | other`
+  (6 values; no synonyms). `medical_misinformation` covers health misinformation, "privacy" and
+  hate speech are reported under `harassment`/`other` for now — extend later if moderation needs it.
+- `ModerationAction.action` = content actions `hide | unhide | delete | pin | unpin | lock | unlock`
+  **plus** report-lifecycle actions `report_review | report_resolve | report_dismiss`
+  (required because `PATCH /reports/:id` must be audited).
+- `ModerationAction.targetType` allows `thread | reply | report`.
+- `Notification.recipientType` = `session | user`; `Notification.type` = `thread_reply | moderation | system`.
+- Thread/Reply `authorType` = `anonymous | user` (anonymous authors store the Session id in
+  `authorId` with `authorModel: 'Session'`; accounts store the User id with `authorModel: 'User'`).
+- `Thread.status` / `Reply.status` = `published | hidden | removed | deleted`;
+  `Report.status` = `open | reviewing | resolved | dismissed`;
+  `Conversation.status` = `active | archived`.
+
+---
+
+## 13. Integration amendments (recorded during the final integration pass)
+
+These are deliberate, reviewed deviations from the contracts above. All are additive; nothing
+frozen was removed.
+
+1. **`issueCsrfToken(req, res)` is a plain synchronous helper** returning the signed token and
+   setting the `ay_csrf` cookie (not Express middleware). `requireCsrf` remains middleware.
+   Reason: the auth controllers need the token value synchronously to return it in the response
+   body for cross-origin clients.
+2. **Auth responses include `csrfToken`.** `POST /auth/session`, `/auth/register`, `/auth/login`
+   and `/auth/refresh` return `data: { identity, csrfToken }` (additive). Required because a SPA on
+   a different registrable domain than the API cannot read the API's `ay_csrf` cookie from JS.
+3. **`Report.reportedBy` uses the ownership id** (User id for accounts, Session id for anonymous)
+   rather than always the Session id — required for a meaningful unique-report constraint, a
+   correct self-report guard and `isOwner` for account reporters. Never serialized.
+4. **Refresh tokens rotate in place** on the same `Session` row (token hash replaced) instead of
+   creating a new Session. Reason: an anonymous caller's ownership id is its Session id; creating a
+   new Session every 15 minutes would orphan the caller's threads and replies. Replay of the old
+   token is impossible because its hash no longer matches. `rotatedFrom` is consequently unused.
+5. **`ChatMessage.aiProvider` is a bounded string (≤32 chars), not an enum.** The provider id is
+   configuration (`AI_PROVIDER`); an enum rejected any non-Gemini provider and turned every chat
+   turn into a 500. `gemini` is recorded for real AI turns, `none` for user turns and the
+   server-generated crisis safety message.
+6. **High-risk chat turns add a separate persisted `safetyMessage`** (deterministic,
+   server-generated resources, `aiProvider: 'none'`); the AI `assistantMessage` stays pure provider
+   output. The 503 `AI_UNAVAILABLE` details may also carry `resources` and `cause`.
+7. **Report responses now pass `viewerId`** so `isOwner` is meaningful (previously always false).
+8. **`limit > 50` returns `400 VALIDATION_ERROR`** rather than silently clamping, so clients notice
+   the mistake; defaults page at 20.
+9. **Crisis data**: the verified AASRA helpline is the official 24-hour line `+91-22-27546669`
+   (the number in the original brief is a contact-person mobile). `verifiedOn` is `2026-04` per the
+   contract; numbers were re-checked against official sources during integration.

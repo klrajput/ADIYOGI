@@ -2,7 +2,7 @@
   "name": "adiyogi",
   "version": "2.0.0",
   "private": true,
-  "description": "AdiYogi — anonymous mental-health peer support platform: forum, AI companion, crisis resources (React + Express + MongoDB)",
+  "description": "AdiYogi \u2014 anonymous mental-health peer support platform: forum, AI companion, crisis resources (React + Express + MongoDB)",
   "license": "MIT",
   "workspaces": [
     "server",
@@ -27,6 +27,7 @@
     "create:admin": "npm run create:admin --workspace server"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "jsdom": "^25.0.1"
   }
 }

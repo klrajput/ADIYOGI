@@ -68,6 +68,7 @@ const config = {
   sessionTtlDays: toInt(process.env.SESSION_TTL_DAYS, 30),
   cookieDomain: process.env.COOKIE_DOMAIN || undefined,
   cookieSecure,
+  cookieSameSite: (process.env.COOKIE_SAMESITE || 'lax').toLowerCase() === 'none' ? 'none' : 'lax',
 
   ai: {
     provider: (process.env.AI_PROVIDER || 'gemini').toLowerCase(),

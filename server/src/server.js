@@ -14,10 +14,13 @@ async function seedIfEnabled() {
   if (!env.seedOnStart) return;
   try {
     // Lazy require so a seeding problem can never prevent the API from booting.
-    const { seedBoards } = require('./services/seedService');
+    const { seedBoards, ensureAdminFromEnv } = require('./services/seedService');
     await seedBoards();
+    // Idempotent: only creates the admin when ADMIN_EMAIL/ADMIN_PASSWORD are set
+    // and the account does not exist yet. Never logs credentials.
+    await ensureAdminFromEnv();
   } catch (error) {
-    logger.warn('Board seeding skipped', { message: error.message });
+    logger.warn('Database bootstrap skipped', { message: error.message });
   }
 }
 

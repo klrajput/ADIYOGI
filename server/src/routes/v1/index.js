@@ -16,6 +16,7 @@ const moderationRoutes = require('./moderation.routes');
 const chatRoutes = require('./chat.routes');
 const crisisRoutes = require('./crisis.routes');
 const notificationsRoutes = require('./notifications.routes');
+const { liveness } = require('./health.routes');
 
 const router = express.Router();
 
@@ -38,5 +39,8 @@ router.use('/moderation', moderationRoutes);
 router.use('/chat', chatRoutes);
 router.use('/crisis', crisisRoutes);
 router.use('/notifications', notificationsRoutes);
+
+// Versioned liveness alias (documentation §4.3: /api/v1/health).
+router.get('/health', liveness);
 
 module.exports = router;
