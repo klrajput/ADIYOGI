@@ -21,7 +21,7 @@ services:
     # package.json + package-lock.json; Dockerfile is at the root.
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    plan: starter
+    plan: free
     region: oregon
     # One instance. Sessions and rate-limit state are per-instance today.
     numInstances: 1
