@@ -1,0 +1,222 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   AdiYogi design system
+   One restrained visual language: warm paper, deep teal intent, amber accents,
+   clay only for crisis surfaces. No gradients-for-decoration, no glassmorphism.
+   ========================================================================== */
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans text-[15px] leading-relaxed;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-serif text-ink;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible, consistent keyboard focus everywhere. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-paper;
+  }
+
+  ::selection {
+    @apply bg-primary-100 text-primary-900;
+  }
+
+  /* Respect the OS reduced-motion preference and the in-app preference. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  [data-reduce-motion='true'] *,
+  [data-reduce-motion='true'] *::before,
+  [data-reduce-motion='true'] *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-narrow {
+    @apply mx-auto w-full max-w-3xl px-4 sm:px-6;
+  }
+
+  /* ---- Buttons ---------------------------------------------------------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-transparent
+      px-4 py-2 text-sm font-medium transition-colors duration-150 ease-calm
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-700 text-white hover:bg-primary-800 active:bg-primary-900;
+  }
+
+  .btn-secondary {
+    @apply btn border-line bg-surface text-ink hover:border-line-strong hover:bg-paper;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-ink-muted hover:bg-ink/5 hover:text-ink;
+  }
+
+  .btn-accent {
+    @apply btn bg-accent-500 text-white hover:bg-accent-600;
+  }
+
+  .btn-crisis {
+    @apply btn bg-crisis-500 text-white hover:bg-crisis-600;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-5 py-2.5 text-base;
+  }
+
+  /* ---- Surfaces --------------------------------------------------------- */
+  .card {
+    @apply rounded-lg border border-line bg-surface shadow-card;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-150 ease-calm hover:-translate-y-0.5 hover:border-line-strong hover:shadow-lift;
+  }
+
+  .surface-muted {
+    @apply rounded-lg border border-line bg-paper;
+  }
+
+  /* ---- Forms ------------------------------------------------------------ */
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-ink-soft;
+  }
+
+  .input,
+  .textarea,
+  .select {
+    @apply block w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink
+      placeholder:text-ink-faint focus:border-primary-500 focus:outline-none
+      focus:ring-2 focus:ring-primary-500/25 disabled:cursor-not-allowed disabled:bg-paper;
+  }
+
+  .textarea {
+    @apply min-h-[120px] resize-y leading-relaxed;
+  }
+
+  .hint {
+    @apply mt-1.5 text-xs text-ink-faint;
+  }
+
+  .field-error {
+    @apply mt-1.5 text-xs font-medium text-crisis-600;
+  }
+
+  /* ---- Badges & chips --------------------------------------------------- */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge border-primary-200 bg-primary-50 text-primary-800;
+  }
+
+  .badge-accent {
+    @apply badge border-accent-200 bg-accent-50 text-accent-800;
+  }
+
+  .badge-crisis {
+    @apply badge border-crisis-200 bg-crisis-50 text-crisis-600;
+  }
+
+  .badge-neutral {
+    @apply badge border-line bg-paper text-ink-muted;
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border border-line bg-surface px-2.5 py-1
+      text-xs text-ink-muted transition-colors hover:border-primary-300 hover:text-primary-700;
+  }
+
+  /* ---- Links ------------------------------------------------------------ */
+  .link {
+    @apply text-primary-700 underline decoration-primary-300 underline-offset-2
+      transition-colors hover:text-primary-800 hover:decoration-primary-600;
+  }
+
+  .link-quiet {
+    @apply text-ink-muted underline-offset-2 hover:text-ink hover:underline;
+  }
+
+  /* ---- Loading ---------------------------------------------------------- */
+  .skeleton {
+    @apply animate-pulse-soft rounded bg-line/70;
+  }
+
+  .spinner {
+    @apply inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent;
+  }
+
+  /* ---- Misc ------------------------------------------------------------- */
+  .divider {
+    @apply h-px w-full bg-line;
+  }
+
+  .skip-link {
+    @apply absolute left-3 top-3 -translate-y-24 rounded-md bg-ink px-4 py-2 text-sm text-white
+      transition-transform focus:translate-y-0;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-ink-faint;
+  }
+
+  .kbd {
+    @apply rounded border border-line bg-paper px-1.5 py-0.5 font-mono text-[11px] text-ink-muted;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    @apply animate-fade-up;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}

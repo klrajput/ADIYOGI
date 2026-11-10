@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /moderation
+Sitemap: /sitemap.xml

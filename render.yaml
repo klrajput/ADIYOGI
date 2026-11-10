@@ -1,0 +1,112 @@
+# =============================================================================
+# AdiYogi — Render blueprint for the API
+#
+# Deploy: Render Dashboard -> Blueprints -> "New Blueprint Instance" -> this repo.
+# Render builds the Docker image from ./Dockerfile (repository root build context)
+# and runs it as a single web service.
+#
+# The API is stateless (sessions live in MongoDB, cookies are client-side), so it
+# can be scaled horizontally later by raising numInstances. Keep numInstances: 1
+# until the in-memory rate limiter is replaced with a shared store (see the
+# scaling notes in docs/DEPLOYMENT.md).
+#
+# Secrets are NEVER stored in this file: env vars with `sync: false` are filled in
+# the Render dashboard (or via a Render secret file) after the blueprint sync.
+# =============================================================================
+services:
+  - type: web
+    name: adiyogi-api
+    runtime: docker
+    # Repository root is the build context because npm workspaces need the root
+    # package.json + package-lock.json; Dockerfile is at the root.
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    region: oregon
+    # One instance. Sessions and rate-limit state are per-instance today.
+    numInstances: 1
+    # GET /health is a liveness probe (no DB dependency). GET /health/ready is the
+    # readiness probe that pings MongoDB; Render only uses one path here, so the
+    # liveness endpoint avoids restarting the service during an Atlas blip.
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # --- runtime -----------------------------------------------------------
+      - key: NODE_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: info
+      # PORT is injected by Render; the API reads process.env.PORT (server/src/config/env.js)
+      # and listens on it, so it is intentionally not declared here.
+
+      # --- cookies -----------------------------------------------------------
+      # HTTPS only in production; SameSite=None is required when the SPA is on a
+      # different registrable domain (*.vercel.app -> *.onrender.com). If you move
+      # to app.example.com + api.example.com, set COOKIE_SAMESITE to lax and
+      # optionally COOKIE_DOMAIN=.example.com in the dashboard.
+      - key: COOKIE_SECURE
+        value: 'true'
+      - key: COOKIE_SAMESITE
+        value: none
+
+      # --- database ----------------------------------------------------------
+      # Atlas connection string, e.g.
+      # mongodb+srv://adiyogi-api:<password>@cluster0.xxxxx.mongodb.net/adiyogi?retryWrites=true&w=majority
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: adiyogi
+
+      # --- client / CORS -----------------------------------------------------
+      # Exact browser origin of the deployed SPA, e.g. https://adiyogi.vercel.app
+      # (or https://app.example.com). Produces no localhost rejection in prod.
+      - key: CLIENT_URL
+        sync: false
+      # Additional allowed origins, comma separated (preview deployments, custom
+      # domain during migration). Optional — leave empty if not needed.
+      - key: CLIENT_URLS
+        sync: false
+
+      # --- secrets -----------------------------------------------------------
+      # openssl rand -hex 32 for each (32+ chars; the API refuses to boot otherwise).
+      - key: JWT_SECRET
+        sync: false
+      - key: SESSION_SECRET
+        sync: false
+
+      # --- AI (Gemini, server-only; never exposed to the browser) ------------
+      - key: AI_PROVIDER
+        value: gemini
+      - key: AI_MODEL
+        value: gemini-2.0-flash
+      - key: AI_TIMEOUT_MS
+        value: '20000'
+      - key: AI_FALLBACK_GUIDED
+        value: 'true'
+      - key: AI_API_KEY
+        sync: false
+
+      # --- retention (TTL indexes) ------------------------------------------
+      - key: CHAT_RETENTION_DAYS
+        value: '30'
+      - key: CRISIS_EVENT_RETENTION_DAYS
+        value: '90'
+
+      # --- rate limits (per-instance memory store) --------------------------
+      - key: RATE_LIMIT_WINDOW_MIN
+        value: '15'
+      - key: RATE_LIMIT_MAX
+        value: '300'
+      - key: CHAT_RATE_LIMIT_MAX
+        value: '20'
+
+      # --- bootstrap ---------------------------------------------------------
+      # Seeds the board taxonomy on startup (idempotent).
+      - key: SEED_ON_START
+        value: 'true'
+      # Optional one-time admin bootstrap. Set both, let the first deploy run,
+      # then remove them from the dashboard.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
