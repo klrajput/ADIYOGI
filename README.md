@@ -1,4 +1,5 @@
 # 🕉️ AdiYogi
+# 🌐 Live Demo: https://adiyogi-ngeq.vercel.app/
 
 **A production-grade, anonymous mental-health peer support platform** — community forum, AI
 companion, and crisis resources built as one secure full-stack application.
