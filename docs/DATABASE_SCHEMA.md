@@ -542,6 +542,14 @@ mongosh "$MONGODB_URI" --eval 'db.threads.aggregate([{ $indexStats: {} }])'   # 
 migration window, never on every deploy against a large production collection. Prefer
 `Model.init()` (create missing only) for normal operation.
 
+**Startup behaviour (v2):** `connectDatabase()` calls `ensureIndexes()` after connecting, which runs
+`Model.init()` for every registered model before the HTTP server begins accepting traffic. This is
+correctness-critical, not just performance: the unique `(targetType, targetId, reportedBy)` index is
+what makes duplicate reports impossible over time, and the TTL indexes enforce chat/crisis
+retention. Index failures are logged and never block startup (a missing index degrades a guarantee
+but must not take the API down); `reportService` additionally pre-checks for an existing report so
+duplicate-report semantics never depend on index-build timing.
+
 Expected index names: `users: email_1, role_1` · `sessions: tokenHash_1, user_1, expiresAt_1` ·
 `userpreferences: ownerType_1_ownerId_1` · `boards: slug_1, order_1` · `threads:
 boardSlug_1_status_1_isPinned_-1_lastActivityAt_-1, authorId_1, createdAt_-1, thread_search` ·

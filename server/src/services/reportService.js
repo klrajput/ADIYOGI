@@ -98,6 +98,18 @@ async function enrichReports(reports, viewerId) {
 async function createReport({ identity, input }) {
   const reporterId = viewerIdOf(identity);
   const reporterSessionId = String(identity.sessionId);
+
+  // Application-level guard as well as the unique index: on a brand-new database the index
+  // build is asynchronous, so this keeps duplicate-report semantics deterministic.
+  const existing = await Report.findOne({
+    targetType: input.targetType,
+    targetId: input.targetId,
+    reportedBy: reporterId,
+  })
+    .select('_id')
+    .lean();
+  if (existing) throw ApiError.conflict('You have already reported this content');
+
   let targetThread = null;
   let authorId = null;
 

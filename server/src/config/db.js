@@ -22,6 +22,42 @@ const DEFAULT_SERVER_SELECTION_TIMEOUT_MS = 10_000;
 const DEFAULT_SOCKET_TIMEOUT_MS = 45_000;
 const DEFAULT_CONNECT_TIMEOUT_MS = 10_000;
 
+/**
+ * Ensure every registered model's indexes exist before accepting traffic.
+ *
+ * Correctness (not just performance) depends on this: the unique
+ * (targetType,targetId,reportedBy) index is what makes duplicate reports impossible, and the
+ * TTL indexes are what enforce chat/crisis retention. Mongoose builds them lazily and
+ * asynchronously, so a fresh deployment could accept duplicates in the window before the
+ * build finishes. Failures are logged but never block startup (a missing index degrades
+ * guarantees, it should not take the service down).
+ * @returns {Promise<void>}
+ */
+async function ensureIndexes() {
+  const modelNames = mongoose.modelNames();
+  if (modelNames.length === 0) return;
+
+  const startedAt = Date.now();
+  const results = await Promise.all(
+    modelNames.map(async (name) => {
+      try {
+        await mongoose.model(name).init();
+        return { name, ok: true };
+      } catch (error) {
+        logger.error('Index build failed for model', { model: name, message: error.message });
+        return { name, ok: false };
+      }
+    })
+  );
+
+  const failed = results.filter((result) => !result.ok).map((result) => result.name);
+  logger.info('Model indexes ensured', {
+    models: modelNames.length,
+    failed: failed.length,
+    durationMs: Date.now() - startedAt,
+  });
+}
+
 /** In-flight connection attempt shared by concurrent callers (server boot + tests). */
 let connectPromise = null;
 let listenersAttached = false;
@@ -132,6 +168,7 @@ async function connectDatabase(uri = env.mongoUri, options = {}) {
         });
         await mongoose.connect(uri, connectOptions);
         logger.info('MongoDB connection established', { dbName: mongoose.connection.name });
+        await ensureIndexes();
         return mongoose.connection;
       } catch (error) {
         lastError = error;
@@ -187,4 +224,9 @@ function getDbState() {
   }
 }
 
-module.exports = { connectDatabase, disconnectDatabase, getDbState };
+module.exports = {
+  connectDatabase,
+  disconnectDatabase,
+  getDbState,
+  ensureIndexes,
+};
