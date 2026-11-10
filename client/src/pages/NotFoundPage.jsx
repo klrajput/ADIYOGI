@@ -37,6 +37,7 @@ export default function NotFoundPage() {
     <div className="container-page py-10 sm:py-14">
       <div className="mx-auto max-w-3xl">
         <PageHeader
+          atmosphere="mountain"
           eyebrow="404"
           title="This page is not here"
           description="The link may be old, mistyped, or the page may have been removed. Nothing has gone wrong with your session or your posts."

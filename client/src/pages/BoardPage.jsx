@@ -10,7 +10,13 @@ import EmptySearch from '../components/common/EmptySearch';
 import { Icon } from '../components/common/Icons';
 import BoardGuidelines from '../components/forum/BoardGuidelines';
 import ThreadFilters from '../components/forum/ThreadFilters';
-import ThreadListItem from '../components/forum/ThreadListItem';
+import DiscussionCard from '../components/forum/DiscussionCard';
+import CategoryAtmosphere from '../components/categories/CategoryAtmosphere';
+import CategoryGlyph from '../components/categories/CategoryGlyph';
+import ShlokaCard from '../components/shloka/ShlokaCard';
+import Reveal from '../components/motion/Reveal';
+import { categoryForBoard } from '../data/wellnessCategories';
+import { SHLOKA_BY_ID } from '../data/shlokas';
 import { boards, threads } from '../api/endpoints';
 import useApiResource from '../hooks/useApiResource';
 import useDebouncedValue from '../hooks/useDebouncedValue';
@@ -136,6 +142,8 @@ export default function BoardPage() {
   }
 
   const support = BOARD_SUPPORT_LEVELS[board.supportLevel] || BOARD_SUPPORT_LEVELS.general;
+  const category = categoryForBoard(board.slug);
+  const categoryShloka = category ? SHLOKA_BY_ID[category.shlokaId] : null;
 
   return (
     <div className="container-page py-10 sm:py-14">
@@ -146,19 +154,24 @@ export default function BoardPage() {
         </Link>
       </nav>
 
-      <header className="card p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <header className="relative overflow-hidden rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-7">
+        <div aria-hidden="true" className="absolute inset-0">
+          <CategoryAtmosphere atmosphere={category?.atmosphere || 'nature'} />
+        </div>
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-surface/95 via-surface/80 to-surface/30" />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-start gap-4">
             <span
               aria-hidden="true"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-line bg-paper text-2xl"
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-accent-200/60 bg-surface/85 text-2xl text-primary-700 shadow-sm backdrop-blur"
             >
-              {board.icon || <Icon name="community" className="h-6 w-6 text-primary-700" />}
+              {board.icon || <CategoryGlyph name={category?.glyph || 'leaf'} className="h-6 w-6" />}
             </span>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="break-words font-serif text-2xl leading-tight text-ink sm:text-3xl">{board.name}</h1>
+                <h1 className="break-words font-serif text-2xl leading-tight text-ink sm:text-[2rem]">{board.name}</h1>
                 <Badge tone={support.tone}>{support.label}</Badge>
+                {category ? <span className="badge-divine">{category.tagline}</span> : null}
               </div>
               <p className="mt-2 max-w-prose text-sm leading-relaxed text-ink-muted">{board.description}</p>
               <p className="mt-2 text-xs text-ink-muted">
@@ -177,10 +190,21 @@ export default function BoardPage() {
             Start a thread
           </Button>
         </div>
-        <div className="mt-5">
+        <div className="relative mt-5">
           <BoardGuidelines guidelines={board.guidelines} />
         </div>
       </header>
+
+      {categoryShloka ? (
+        <Reveal className="mt-5">
+          <ShlokaCard
+            shloka={categoryShloka}
+            compact
+            showTransliteration={false}
+            note="A reflection for this space — not a treatment or a diagnosis."
+          />
+        </Reveal>
+      ) : null}
 
       <div className="mt-6">
         <ThreadFilters
@@ -236,11 +260,13 @@ export default function BoardPage() {
             />
           )
         ) : (
-          <ul className="card overflow-hidden">
-            {threadList.map((thread) => (
-              <ThreadListItem key={thread.id} thread={thread} />
+          <div className="grid gap-5 md:grid-cols-2">
+            {threadList.map((thread, index) => (
+              <Reveal key={thread.id} delay={Math.min(index, 6) * 40} className="h-full">
+                <DiscussionCard thread={thread} showBoard={false} />
+              </Reveal>
             ))}
-          </ul>
+          </div>
         )}
 
         {meta ? (

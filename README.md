@@ -83,6 +83,38 @@ tests. Nothing here is a mock or a placeholder.
 
 ---
 
+## Design language
+
+AdiYogi is designed as a *digital sanctuary*: calm cream surfaces for reading, deep forest and
+cosmic-night surfaces for contemplative moments, and antique gold used sparingly as the divine
+accent. No stock photography, no temple imagery and no religious wallpapers are shipped.
+
+| Token | Value | Use |
+|---|---|---|
+| Soft cream / warm ivory | `#F5F0E6` / `#FFFDF7` | page and card surfaces |
+| Deep forest green | `#173F38` | primary actions, headings, trust |
+| Antique gold / muted saffron | `#B88A42` / `#D6A35D` | accents, active indicators, sacred highlights |
+| Cosmic blue | `#142D46` | hero, meditation and inspiration sections |
+| Sage / lavender | `#A8BFA8` / `#D9D5E8` | category atmospheres, quiet secondary surfaces |
+| Muted clay | `#A8442C` | crisis surfaces only |
+
+- **Original deity illustrations**: Adiyogi (meditating Shiva), Rama and Vishnu are hand-built
+  layered **SVG illustrations** in `client/src/components/deities/` — no photographs, no third-party
+  artwork, no image payload. They animate with CSS only (breathing aura, drifting particles, hair
+  sway, rotating chakra) rather than WebGL.
+- **Motion system**: scroll reveals and gentle parallax via `IntersectionObserver` + rAF
+  (`client/src/components/motion/`), CSS keyframes for auras/particles/waves. No animation library,
+  no layout thrash; every animation is disabled under `prefers-reduced-motion` and the in-app
+  reduced-motion preference.
+- **Typography**: self-hosted Playfair Display (headings), Manrope (body) and Noto Sans Devanagari
+  (shlokas) in `client/src/assets/fonts/` — **no third-party font requests**, which matters on a
+  mental-health platform.
+- **Sanskrit wisdom**: five authentic Bhagavad Gita verses (with reference, transliteration,
+  meaning and a reflection) in `client/src/data/shlokas.js`, shown as accessible cards and always
+  paired with the statement that wisdom is not a substitute for professional care.
+- **Category atmospheres**: eight distinct animated scenes (water, sunrise, nature, night, river,
+  warm light, mountain, moonlight) so no two wellness spaces look identical.
+
 ## Architecture
 
 ```

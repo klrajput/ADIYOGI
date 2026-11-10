@@ -8,6 +8,7 @@ import { useIdentity } from '../../context/IdentityContext';
 import { PEER_SUPPORT_DISCLAIMER } from '../../lib/constants';
 import { classNames, initials } from '../../lib/format';
 import { CRISIS_NAV, PRIMARY_NAV } from './navigation';
+import { WELLNESS_CATEGORIES } from '../../data/wellnessCategories';
 
 const FOCUSABLE = 'a[href], button:not([disabled])';
 
@@ -77,14 +78,14 @@ export default function MobileNav({ open, onClose }) {
 
   return createPortal(
     <div className="fixed inset-0 z-50 lg:hidden">
-      <div className="absolute inset-0 bg-ink/45" aria-hidden="true" onClick={onClose} />
+      <div className="absolute inset-0 bg-cosmic-deep/55 backdrop-blur-sm" aria-hidden="true" onClick={onClose} />
       <div
         ref={panelRef}
         id="mobile-nav"
         role="dialog"
         aria-modal="true"
         aria-label="Site menu"
-        className="absolute inset-y-0 right-0 flex w-80 max-w-[88vw] flex-col overflow-y-auto bg-surface shadow-lift"
+        className="absolute inset-y-0 right-0 flex w-80 max-w-[88vw] flex-col overflow-y-auto border-l border-accent-200/30 bg-surface/95 shadow-lift backdrop-blur-xl"
       >
         <div className="flex h-16 items-center justify-between border-b border-line px-4">
           <Logo />
@@ -119,6 +120,24 @@ export default function MobileNav({ open, onClose }) {
             {CRISIS_NAV.label}
           </NavLink>
         </nav>
+
+        <div className="border-t border-line px-3 py-4">
+          <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-faint">
+            Wellness spaces
+          </p>
+          <div className="grid grid-cols-2 gap-1.5">
+            {WELLNESS_CATEGORIES.map((category) => (
+              <Link
+                key={category.slug}
+                to={`/boards/${encodeURIComponent(category.boardSlug)}`}
+                onClick={onClose}
+                className="rounded-lg border border-line bg-paper/70 px-3 py-2 text-xs font-medium text-ink-soft transition-colors hover:border-accent-200 hover:text-primary-800"
+              >
+                {category.name}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         <div className="border-t border-line px-3 py-4">
           {loading ? (

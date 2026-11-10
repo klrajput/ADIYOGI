@@ -177,7 +177,7 @@ export default function ThreadPage() {
       ) : null}
 
       <article className="card overflow-hidden">
-        <header className="border-b border-line p-5 sm:p-6">
+        <header className="border-b border-line/80 bg-gradient-to-br from-surface via-surface to-accent-50/40 p-5 sm:p-6">
           <div className="flex flex-wrap items-center gap-2">
             {thread.isPinned ? (
               <Badge tone="accent">
@@ -200,7 +200,10 @@ export default function ThreadPage() {
             <span className="ml-auto text-xs text-ink-muted">{timeAgo(thread.createdAt)}</span>
           </div>
 
-          <h1 className="mt-2 break-words font-serif text-2xl leading-tight text-ink sm:text-3xl">{thread.title}</h1>
+          <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-600">
+            {thread.boardName || thread.boardSlug || 'Community'} · anonymous conversation
+          </p>
+          <h1 className="mt-1 break-words font-serif text-2xl leading-tight text-ink sm:text-[2rem]">{thread.title}</h1>
 
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
             <span className="font-medium text-ink-muted">{thread.authorAlias}</span>

@@ -160,9 +160,13 @@ export default function CrisisPage() {
       {/* Hero --------------------------------------------------------------- */}
       <section
         aria-labelledby="crisis-hero-title"
-        className="rounded-xl border border-crisis-200 bg-crisis-50 px-5 py-8 sm:px-8 sm:py-10"
+        className="relative overflow-hidden rounded-3xl border border-crisis-200 bg-gradient-to-br from-crisis-50 via-surface to-accent-50 px-5 py-8 shadow-card sm:px-8 sm:py-10"
       >
-        <p className="eyebrow text-crisis-600">Immediate support</p>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-crisis-200/40 blur-3xl"
+        />
+        <p className="eyebrow-divine !text-crisis-600">Immediate support</p>
         <h1 id="crisis-hero-title" className="mt-2 font-serif text-3xl text-crisis-800 sm:text-4xl">
           Get help right now
         </h1>
