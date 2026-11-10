@@ -25,7 +25,13 @@ const Button = forwardRef(function Button(
   { variant = 'primary', size = 'md', to, href, className, children, type = 'button', loading = false, disabled, ...rest },
   ref
 ) {
-  const classes = classNames(VARIANTS[variant] || VARIANTS.primary, SIZES[size], className);
+  // Touch devices get a >=40px target regardless of the visual size step.
+  const classes = classNames(
+    VARIANTS[variant] || VARIANTS.primary,
+    SIZES[size],
+    '[@media(pointer:coarse)]:min-h-[2.5rem]',
+    className
+  );
   const isDisabled = disabled || loading;
   const content = (
     <>

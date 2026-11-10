@@ -58,7 +58,10 @@ export const chat = {
   conversations: (query) => api.get('/chat/conversations', { query }),
   createConversation: (payload) => api.post('/chat/conversations', payload),
   conversation: (id) => api.get(`/chat/conversations/${encodeURIComponent(id)}`),
-  sendMessage: (id, payload) => api.post(`/chat/conversations/${encodeURIComponent(id)}/messages`, payload),
+  // A provider call can take up to AI_TIMEOUT_MS plus one retry, so the chat turn gets
+  // a longer client timeout than the default request budget.
+  sendMessage: (id, payload) =>
+    api.post(`/chat/conversations/${encodeURIComponent(id)}/messages`, payload, { timeoutMs: 45_000 }),
   removeConversation: (id) => api.delete(`/chat/conversations/${encodeURIComponent(id)}`),
 };
 

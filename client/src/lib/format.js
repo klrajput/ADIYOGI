@@ -52,6 +52,45 @@ export function truncate(text, max = 160) {
   return `${value.slice(0, max - 1).trimEnd()}…`;
 }
 
+/** Compact count for counters: 12 → "12", 12500 → "12.5k". Null stays null. */
+export function formatCount(count) {
+  if (count === null || count === undefined || count === '') return null;
+  const value = Number(count);
+  if (!Number.isFinite(value)) return null;
+  if (value < 1000) return value.toLocaleString();
+  if (value < 1000000) {
+    const thousands = value / 1000;
+    return `${thousands >= 100 ? Math.round(thousands) : Math.round(thousands * 10) / 10}k`;
+  }
+  const millions = value / 1000000;
+  return `${Math.round(millions * 10) / 10}m`;
+}
+
+/**
+ * Honest count phrase used across the forum:
+ *   null → null (render nothing — never invent a zero)
+ *   0    → "No threads yet" (or the supplied zeroLabel)
+ *   1    → "1 thread"
+ *   12   → "12 threads"
+ */
+export function countPhrase(count, singular, plural = `${singular}s`, zeroLabel) {
+  const value = Number(count);
+  if (count === null || count === undefined || !Number.isFinite(value)) return null;
+  if (value === 0) return zeroLabel || `No ${plural}`;
+  return pluralize(value, singular, plural);
+}
+
+/**
+ * Turns a board slug into a readable label when the API only supplies the slug
+ * ("grief-and-loss" → "Grief and loss"). Never invents data — it is derived
+ * from the slug that the server returned.
+ */
+export function humanizeSlug(slug = '') {
+  if (!slug) return '';
+  const words = String(slug).replace(/[-_]+/g, ' ').trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 export function initials(label = '') {
   return label
     .split(/\s+/)
