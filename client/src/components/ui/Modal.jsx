@@ -5,18 +5,25 @@ import { classNames } from '../../lib/format';
 /**
  * Accessible modal: labelled dialog, Escape to close, backdrop click to close,
  * focus moved into the dialog and restored on close, background scroll locked.
+ *
+ * `onClose` is read through a ref so passing an inline callback does not tear
+ * down and re-run the focus/scroll effects on every render (which would steal
+ * focus while typing into a dialog field).
  */
 export default function Modal({ open, onClose, title, description, children, footer, size = 'md', labelledBy = 'modal-title' }) {
   const panelRef = useRef(null);
   const previouslyFocused = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) return undefined;
     previouslyFocused.current = document.activeElement;
+    const requestClose = () => onCloseRef.current?.();
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
         event.stopPropagation();
-        onClose?.();
+        requestClose();
       }
       if (event.key !== 'Tab') return;
       const focusables = panelRef.current?.querySelectorAll(
@@ -50,7 +57,7 @@ export default function Modal({ open, onClose, title, description, children, foo
       window.clearTimeout(timer);
       previouslyFocused.current?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
@@ -58,7 +65,11 @@ export default function Modal({ open, onClose, title, description, children, foo
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-6">
-      <div className="absolute inset-0 bg-ink/45" onClick={onClose} aria-hidden="true" />
+      <div
+        className="absolute inset-0 bg-ink/45"
+        onClick={() => onCloseRef.current?.()}
+        aria-hidden="true"
+      />
       <div
         ref={panelRef}
         role="dialog"
@@ -76,12 +87,17 @@ export default function Modal({ open, onClose, title, description, children, foo
             </h2>
             {description ? <p className="mt-1 text-sm text-ink-muted">{description}</p> : null}
           </div>
-          <button type="button" className="btn-ghost -mr-2 px-2 py-1 text-lg" onClick={onClose} aria-label="Close dialog">
-            ✕
+          <button
+            type="button"
+            className="-mr-2 inline-flex h-10 w-10 items-center justify-center rounded-md text-lg text-ink-muted hover:bg-paper hover:text-ink"
+            onClick={() => onCloseRef.current?.()}
+            aria-label="Close dialog"
+          >
+            <span aria-hidden="true">✕</span>
           </button>
         </div>
         <div className="max-h-[70vh] overflow-y-auto px-5 py-4">{children}</div>
-        {footer ? <div className="flex justify-end gap-2 border-t border-line px-5 py-3">{footer}</div> : null}
+        {footer ? <div className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-3">{footer}</div> : null}
       </div>
     </div>,
     document.body

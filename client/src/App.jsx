@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { IdentityProvider } from './context/IdentityContext';
 import { ToastProvider } from './context/ToastContext';
 import AppLayout from './components/layout/AppLayout';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { LoadingBlock } from './components/ui/Spinner';
 
 // Route-level code splitting keeps the first paint light on mobile.
@@ -33,26 +34,28 @@ export default function App() {
   return (
     <ToastProvider>
       <IdentityProvider>
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/community" element={<CommunityPage />} />
-              <Route path="/boards/:slug" element={<BoardPage />} />
-              <Route path="/boards/:slug/new" element={<NewThreadPage />} />
-              <Route path="/threads/:id" element={<ThreadPage />} />
-              <Route path="/chat" element={<ChatPage />} />
-              <Route path="/crisis" element={<CrisisPage />} />
-              <Route path="/resources" element={<ResourcesPage />} />
-              <Route path="/guidelines" element={<GuidelinesPage />} />
-              <Route path="/preferences" element={<PreferencesPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/moderation" element={<ModerationPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/community" element={<CommunityPage />} />
+                <Route path="/boards/:slug" element={<BoardPage />} />
+                <Route path="/boards/:slug/new" element={<NewThreadPage />} />
+                <Route path="/threads/:id" element={<ThreadPage />} />
+                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/crisis" element={<CrisisPage />} />
+                <Route path="/resources" element={<ResourcesPage />} />
+                <Route path="/guidelines" element={<GuidelinesPage />} />
+                <Route path="/preferences" element={<PreferencesPage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/moderation" element={<ModerationPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </IdentityProvider>
     </ToastProvider>
   );

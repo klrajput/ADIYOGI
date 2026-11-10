@@ -16,9 +16,9 @@ export function Field({ label, htmlFor, hint, error, required, className, childr
         </label>
       ) : null}
       {children}
-      {hint && !error ? <p className="hint">{hint}</p> : null}
+      {hint && !error ? <p className="hint text-ink-muted">{hint}</p> : null}
       {error ? (
-        <p className="field-error" role="alert">
+        <p className="field-error" role="alert" id={htmlFor ? `${htmlFor}-error` : undefined}>
           {error}
         </p>
       ) : null}
@@ -43,7 +43,7 @@ export function Input({ label, hint, error, required, id, className, ...rest }) 
   );
 }
 
-export function Textarea({ label, hint, error, required, id, className, maxLength, value = '', showCount = false, ...rest }) {
+export function Textarea({ label, hint, error, required, id, className, maxLength, value = '', showCount = true, ...rest }) {
   const generatedId = useId();
   const inputId = id || `textarea-${generatedId}`;
   return (
@@ -64,7 +64,7 @@ export function Textarea({ label, hint, error, required, id, className, maxLengt
         value={value}
         {...rest}
       />
-      {maxLength ? (
+      {maxLength && showCount ? (
         <div className="hint flex justify-between" aria-hidden="true">
           <span />
           <span className={classNames(value.length > maxLength * 0.9 && 'text-accent-600')}>
@@ -102,7 +102,7 @@ export function Checkbox({ label, hint, error, id, className, ...rest }) {
         />
         <label htmlFor={inputId} className="text-sm text-ink-soft">
           {label}
-          {hint ? <span className="mt-1 block text-xs text-ink-faint">{hint}</span> : null}
+          {hint ? <span className="mt-1 block text-xs text-ink-muted">{hint}</span> : null}
         </label>
       </div>
       {error ? (

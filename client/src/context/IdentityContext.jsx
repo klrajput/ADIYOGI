@@ -14,12 +14,13 @@ export function IdentityProvider({ children }) {
   const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
+    setLoading(true);
     try {
       setError(null);
       const { data } = await auth.me();
       setIdentity(data.identity);
       return data.identity;
-    } catch (apiError) {
+    } catch {
       // No usable session — establish an anonymous one.
       try {
         const { data } = await auth.bootstrap();
@@ -37,6 +38,12 @@ export function IdentityProvider({ children }) {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Apply the accessibility preference globally, on load and on every change.
+  const reduceMotion = identity?.preferences?.reduceMotion === true;
+  useEffect(() => {
+    document.documentElement.dataset.reduceMotion = reduceMotion ? 'true' : 'false';
+  }, [reduceMotion]);
 
   const login = useCallback(async (payload) => {
     const { data } = await auth.login(payload);

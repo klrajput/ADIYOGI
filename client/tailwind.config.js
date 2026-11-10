@@ -11,7 +11,7 @@ export default {
           DEFAULT: '#16202B',
           soft: '#2C3A48',
           muted: '#5B6674',
-          faint: '#8A94A0',
+          faint: '#66707D',
         },
         line: {
           DEFAULT: '#E4E0D7',

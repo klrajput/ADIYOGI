@@ -30,24 +30,65 @@ function readCookie(name) {
   return match ? decodeURIComponent(match[1]) : undefined;
 }
 
+/**
+ * CSRF token cache.
+ *
+ * The canonical delivery is the readable `ay_csrf` cookie (double-submit). When the web
+ * app and the API are on different registrable domains (e.g. vercel.app + onrender.com)
+ * the browser will not expose the API's cookie to JS, so the API also returns the signed
+ * token in the body of every session-mutating auth response. Caching it here keeps CSRF
+ * working for both same-origin and cross-origin deployments.
+ */
+let csrfTokenCache = null;
+
+function rememberCsrfToken(payload) {
+  const token = payload && payload.data && payload.data.csrfToken;
+  if (typeof token === 'string' && token.length > 0) csrfTokenCache = token;
+}
+
+function currentCsrfToken() {
+  return readCookie('ay_csrf') || csrfTokenCache || null;
+}
+
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 let bootstrapPromise = null;
 
 async function bootstrapSession() {
   if (!bootstrapPromise) {
-    bootstrapPromise = request('/auth/session', { method: 'POST', body: {}, skipAuthRetry: true })
-      .catch(() => null)
-      .finally(() => {
-        bootstrapPromise = null;
-      });
+    bootstrapPromise = (async () => {
+      // Cross-origin deployments cannot read the API's `ay_csrf` cookie from JS. When a
+      // long-lived refresh cookie already exists (page reload), POST /auth/session is
+      // CSRF-gated — so fetch a token first. GET is never CSRF-gated and its body carries
+      // the signed token through CORS-with-credentials.
+      if (!currentCsrfToken()) {
+        try {
+          await request('/auth/csrf', { method: 'GET', skipAuthRetry: true });
+        } catch {
+          /* fall through: same-origin deployments already have a readable cookie */
+        }
+      }
+      try {
+        return await request('/auth/session', { method: 'POST', body: {}, skipAuthRetry: true });
+      } catch {
+        return null;
+      }
+    })().finally(() => {
+      bootstrapPromise = null;
+    });
   }
   return bootstrapPromise;
 }
 
 function buildUrl(path, query) {
   const suffix = path.startsWith('/') ? path : `/${path}`;
-  const url = new URL(`${API_BASE_URL}${suffix}`, typeof window !== 'undefined' ? window.location.origin : 'http://localhost');
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+  const base = new URL(API_BASE_URL, origin);
+  const baseHref = base.href.endsWith('/') ? base.href : `${base.href}/`;
+  // Resolve against the base (not the origin) so an absolute VITE_API_BASE_URL such as
+  // https://api.example.com/api/v1 is honoured; a relative base keeps dev-proxy/same-origin
+  // requests relative.
+  const url = new URL(suffix.replace(/^\//, ''), baseHref);
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
       if (value === undefined || value === null || value === '') return;
@@ -58,8 +99,8 @@ function buildUrl(path, query) {
       }
     });
   }
-  // Relative URLs keep the dev proxy and same-origin deployments working.
-  return `${url.pathname}${url.search}`;
+  const sameOrigin = url.origin === origin;
+  return sameOrigin ? `${url.pathname}${url.search}` : url.toString();
 }
 
 async function request(path, options = {}) {
@@ -71,6 +112,8 @@ async function request(path, options = {}) {
     headers = {},
     skipAuthRetry = false,
     timeoutMs = 30_000,
+    retried = false,
+    csrfRetried = false,
   } = options;
 
   const timeoutController = new AbortController();
@@ -84,7 +127,7 @@ async function request(path, options = {}) {
   const finalHeaders = { Accept: 'application/json', ...headers };
   if (body !== undefined) finalHeaders['Content-Type'] = 'application/json';
   if (MUTATING.has(method)) {
-    const csrfToken = readCookie('ay_csrf');
+    const csrfToken = currentCsrfToken();
     if (csrfToken) finalHeaders['x-csrf-token'] = csrfToken;
   }
 
@@ -99,6 +142,10 @@ async function request(path, options = {}) {
     });
   } catch (error) {
     clearTimeout(timeout);
+    // Contract §12.6: idempotent GETs get exactly one retry on a transport failure.
+    if (method === 'GET' && !retried && !signal?.aborted) {
+      return request(path, { ...options, retried: true });
+    }
     throw new ApiError({
       status: 0,
       code: 'NETWORK_ERROR',
@@ -124,6 +171,8 @@ async function request(path, options = {}) {
     }
   }
 
+  rememberCsrfToken(payload);
+
   if (!response.ok) {
     const error = new ApiError({
       status: response.status,
@@ -138,6 +187,18 @@ async function request(path, options = {}) {
       const session = await bootstrapSession();
       if (session) return request(path, { ...options, skipAuthRetry: true });
     }
+
+    // Rotated/rejected CSRF token (e.g. the server rotated the cookie mid-session):
+    // fetch a fresh token, then retry this write exactly once.
+    if (error.code === 'CSRF_INVALID' && !csrfRetried && !path.startsWith('/auth/')) {
+      try {
+        clearCsrfTokenCache();
+        await request('/auth/csrf', { method: 'GET', skipAuthRetry: true });
+        return request(path, { ...options, skipAuthRetry: true, csrfRetried: true });
+      } catch {
+        /* fall through to the original error */
+      }
+    }
     throw error;
   }
 
@@ -145,6 +206,10 @@ async function request(path, options = {}) {
 }
 
 /** Public API used by `endpoints.js` and tests. */
+export function clearCsrfTokenCache() {
+  csrfTokenCache = null;
+}
+
 export const api = {
   get: (path, options = {}) => request(path, { ...options, method: 'GET' }),
   post: (path, body, options = {}) => request(path, { ...options, method: 'POST', body }),
