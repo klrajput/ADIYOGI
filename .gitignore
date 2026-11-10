@@ -6,34 +6,28 @@ node_modules/
 # Build outputs
 build/
 dist/
+client/dist/
+server/dist/
 
-# Environment variables
+# Environment — never commit real secrets
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
 
-# Firebase
-.firebase/
-.firebaserc
+# Package manager caches (repo-local cache dir used in sandboxes)
+.npm-cache/
+.npm/
 
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-
-# IDE / Editor
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS files
-.DS_Store
-Thumbs.db
+# Test / coverage output
+coverage/
+.nyc_output/
+junit.xml
+test-results/
+playwright-report/
+blob-report/
 
 # Logs
 logs/
@@ -42,8 +36,19 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Testing
-coverage/
+# Firebase (legacy — removed in v2)
+.firebase/
+.firebaserc
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
 
 # Misc
 *.tsbuildinfo
+.cache/
+.tmp/
