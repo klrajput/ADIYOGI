@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Alert from '../components/ui/Alert';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
@@ -22,12 +22,14 @@ function safeRedirect(candidate) {
 }
 
 export default function LoginPage() {
-  const { identity, loading, login, register, logout, isModerator } = useIdentity();
+  const { identity, loading, error, login, register, logout, isModerator } = useIdentity();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
-  const [mode, setMode] = useState('signin');
+  // Headline links can deep-link straight into registration (/login?mode=register).
+  const [mode, setMode] = useState(searchParams.get('mode') === 'register' ? 'register' : 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -210,6 +212,15 @@ export default function LoginPage() {
             You do not need an account to read, post, chat, or reach crisis support. Accounts add continuity across
             devices and access to moderator tools.
           </p>
+
+          {error ? (
+            <div className="mt-6">
+              <Alert tone="warning" title="Sign-in is unavailable right now" icon="⚠️">
+                The AdiYogi server could not be reached, so accounts cannot be checked. You can keep
+                reading and use crisis resources; try again in a moment.
+              </Alert>
+            </div>
+          ) : null}
 
           <div className="card mt-6 overflow-hidden">
             <div role="tablist" aria-label="Account mode" className="flex border-b border-line bg-paper">

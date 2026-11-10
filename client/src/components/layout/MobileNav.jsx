@@ -26,7 +26,7 @@ function drawerLinkClass({ isActive }) {
  */
 export default function MobileNav({ open, onClose }) {
   const panelRef = useRef(null);
-  const { identity, loading, refresh, isModerator } = useIdentity();
+  const { identity, loading, refresh, isModerator, error } = useIdentity();
   const { pathname } = useLocation();
 
   // Close on navigation so the drawer never covers the destination page.
@@ -181,13 +181,49 @@ export default function MobileNav({ open, onClose }) {
                   Sign in
                 </Link>
               ) : null}
+              {identity.kind === 'anonymous' ? (
+                <Link
+                  to="/login?mode=register"
+                  state={{ from: pathname }}
+                  className={drawerLinkClass}
+                  onClick={onClose}
+                >
+                  <Icon name="plus" className="h-5 w-5 text-ink-muted" />
+                  Create account
+                </Link>
+              ) : null}
             </>
           ) : (
-            <div className="px-3">
-              <p className="text-sm text-ink-muted">We could not restore your session.</p>
-              <Button variant="secondary" size="sm" className="mt-2" onClick={() => refresh()}>
-                Try again
-              </Button>
+            <div className="space-y-2 px-3">
+              <p className="text-xs leading-relaxed text-ink-muted">
+                {error
+                  ? 'The AdiYogi server can’t be reached right now, so a session could not be created.'
+                  : 'Accounts are optional — anonymous use never requires one.'}{' '}
+                Sign in for continuity across devices, or create an account.
+              </p>
+              <Link
+                to="/login"
+                state={{ from: pathname }}
+                onClick={onClose}
+                className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-line bg-surface text-sm font-semibold text-ink-soft transition-colors hover:border-accent-300 hover:text-ink"
+              >
+                <Icon name="user" className="h-4 w-4" />
+                Sign in
+              </Link>
+              <Link
+                to="/login?mode=register"
+                state={{ from: pathname }}
+                onClick={onClose}
+                className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-primary-300 bg-primary-50 text-sm font-semibold text-primary-800 transition-colors hover:border-primary-500 hover:bg-primary-100"
+              >
+                <Icon name="plus" className="h-4 w-4" />
+                Create account
+              </Link>
+              {error ? (
+                <Button variant="secondary" size="sm" className="w-full" onClick={() => refresh()}>
+                  Retry connection
+                </Button>
+              ) : null}
             </div>
           )}
         </div>
