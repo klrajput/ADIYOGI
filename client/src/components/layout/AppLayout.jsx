@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import CrisisBar from './CrisisBar';
+import ServerStatusBanner from './ServerStatusBanner';
 import Footer from './Footer';
 import OfflineBanner from '../common/OfflineBanner';
 import ScrollToTop from '../common/ScrollToTop';
@@ -35,6 +36,7 @@ export default function AppLayout() {
       </a>
       <OfflineBanner />
       <Header />
+      <ServerStatusBanner />
       <CrisisBar />
       <main id="main" ref={mainRef} tabIndex={-1} className="flex-1 outline-none">
         <Outlet />

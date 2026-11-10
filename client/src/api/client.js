@@ -10,7 +10,23 @@
  */
 
 const RAW_BASE = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+
+/** Absolute API used only if a same-origin proxy is not available on a deployed host. */
+const FALLBACK_API_BASE = 'https://adiyogi-api-0z0y.onrender.com/api/v1';
+
+/** Session-scoped override chosen when the same-origin proxy fails. */
+let apiBaseOverride = null;
+
 export const API_BASE_URL = RAW_BASE.replace(/\/$/, '');
+
+function resolveBase() {
+  return apiBaseOverride || API_BASE_URL;
+}
+
+function isLocalhost() {
+  if (typeof window === 'undefined') return true;
+  return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+}
 
 export class ApiError extends Error {
   constructor({ status, code, message, details, requestId }) {
@@ -63,14 +79,35 @@ async function bootstrapSession() {
       // the signed token through CORS-with-credentials.
       if (!currentCsrfToken()) {
         try {
-          await request('/auth/csrf', { method: 'GET', skipAuthRetry: true });
+          await request('/auth/csrf', { method: 'GET', skipAuthRetry: true, timeoutMs: 60_000 });
         } catch {
           /* fall through: same-origin deployments already have a readable cookie */
         }
       }
       try {
-        return await request('/auth/session', { method: 'POST', body: {}, skipAuthRetry: true });
-      } catch {
+        return await request('/auth/session', {
+          method: 'POST',
+          body: {},
+          skipAuthRetry: true,
+          timeoutMs: 60_000,
+        });
+      } catch (firstError) {
+        // A deployed host without a working /api proxy: retry against the absolute API once.
+        if (!apiBaseOverride && API_BASE_URL.startsWith('/') && !isLocalhost()) {
+          apiBaseOverride = FALLBACK_API_BASE;
+          try {
+            clearCsrfTokenCache();
+            return await request('/auth/session', {
+              method: 'POST',
+              body: {},
+              skipAuthRetry: true,
+              timeoutMs: 60_000,
+            });
+          } catch {
+            apiBaseOverride = null;
+          }
+        }
+        if (firstError) return null;
         return null;
       }
     })().finally(() => {
@@ -83,7 +120,7 @@ async function bootstrapSession() {
 function buildUrl(path, query) {
   const suffix = path.startsWith('/') ? path : `/${path}`;
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
-  const base = new URL(API_BASE_URL, origin);
+  const base = new URL(resolveBase(), origin);
   const baseHref = base.href.endsWith('/') ? base.href : `${base.href}/`;
   // Resolve against the base (not the origin) so an absolute VITE_API_BASE_URL such as
   // https://api.example.com/api/v1 is honoured; a relative base keeps dev-proxy/same-origin
@@ -111,7 +148,7 @@ async function request(path, options = {}) {
     signal,
     headers = {},
     skipAuthRetry = false,
-    timeoutMs = 30_000,
+    timeoutMs = 45_000,
     retried = false,
     csrfRetried = false,
   } = options;
@@ -193,7 +230,7 @@ async function request(path, options = {}) {
     if (error.code === 'CSRF_INVALID' && !csrfRetried && !path.startsWith('/auth/')) {
       try {
         clearCsrfTokenCache();
-        await request('/auth/csrf', { method: 'GET', skipAuthRetry: true });
+        await request('/auth/csrf', { method: 'GET', skipAuthRetry: true, timeoutMs: 60_000 });
         return request(path, { ...options, skipAuthRetry: true, csrfRetried: true });
       } catch {
         /* fall through to the original error */

@@ -12,6 +12,34 @@ variables), [`SECURITY.md`](./SECURITY.md) (threat model, CSP, cookie policy),
 
 ---
 
+## 0. Current live deployment (this repository)
+
+| Piece | Where | URL |
+|---|---|---|
+| Web app | Vercel (project root: `client/`) | https://adiyogi-ngeq.vercel.app |
+| API | Render (Docker, `render.yaml`) | https://adiyogi-api-0z0y.onrender.com |
+| Database | MongoDB Atlas | configured via Render `MONGODB_URI` |
+
+The web app reaches the API through a **same-origin proxy** declared in `vercel.json` /
+`client/vercel.json` (`/api/:path*` → `https://adiyogi-api-0z0y.onrender.com/api/:path*`).
+This keeps the session cookies first-party (Safari ITP blocks cross-site `SameSite=None`
+cookies), needs no CORS, and requires no build-time dashboard variables.
+
+- To point at a different API: update the rewrite destination in both `vercel.json` files, or set
+  `VITE_API_BASE_URL` (absolute) in the Vercel project environment. `client/.env.production`
+  intentionally leaves it unset so the proxy is used; if a deployed host has no working proxy the
+  client automatically retries once against the absolute API origin.
+- Both Vercel project-root layouts are supported: repository root (`vercel.json`) and
+  `client/` (`client/vercel.json` — SPA rewrites, proxy and security headers included, so deep
+  links like `/community` no longer 404).
+- Render free instances sleep after idle; the first request can take 30–60 s. The app shows a
+  retryable "server can’t be reached" banner and the client budget is 45–60 s for that reason.
+  Use a paid always-on instance for production.
+- The Render API must list the web origin in `CLIENT_URL`/`CLIENT_URLS` for direct (non-proxy)
+  access; it currently allows `https://adiyogi-ngeq.vercel.app`.
+- Health checks: `https://adiyogi-api-0z0y.onrender.com/health` and `/health/ready` (returns
+  `db: connected`).
+
 ## 1. Target topology
 
 ```

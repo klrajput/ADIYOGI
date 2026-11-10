@@ -31,6 +31,7 @@ const COLUMNS = [
       { to: '/preferences', label: 'Privacy & preferences' },
       { to: '/notifications', label: 'Notifications' },
       { to: '/login', label: 'Sign in' },
+      { to: '/login?mode=register', label: 'Create account' },
     ],
   },
 ];
