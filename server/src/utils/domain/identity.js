@@ -64,7 +64,7 @@ function authorFieldsOf(identity) {
     authorType: account ? 'user' : 'anonymous',
     authorId: viewerIdOf(identity),
     authorModel: account ? 'User' : 'Session',
-    authorAlias: identity.alias,
+    authorAlias: account ? identity.alias : 'Anonymous',
   };
 }
 

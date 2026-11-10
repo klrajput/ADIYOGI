@@ -236,7 +236,7 @@ const spec = {
           id: { type: 'string', example: '665f1c2ab1d4c3e5f6a7b8c9' },
           kind: { type: 'string', enum: ['anonymous', 'user'] },
           role: { type: 'string', enum: ['member', 'moderator', 'admin'] },
-          alias: { type: 'string', example: 'Seeker 4F2A' },
+          alias: { type: 'string', example: 'Anonymous' },
           createdAt: { type: 'string', format: 'date-time' },
           isAnonymous: { type: 'boolean' },
           preferences: ref('Preferences'),
@@ -245,7 +245,7 @@ const spec = {
       Preferences: {
         type: 'object',
         properties: {
-          displayAlias: { type: 'string', minLength: 3, maxLength: 24, example: 'Seeker 4F2A' },
+          displayAlias: { type: 'string', minLength: 3, maxLength: 24, example: 'Anonymous' },
           showCrisisBar: { type: 'boolean', default: true },
           contentWarningDefault: { type: 'boolean', default: false },
           reduceMotion: { type: 'boolean', default: false },
@@ -273,7 +273,7 @@ const spec = {
       ThreadAuthor: {
         type: 'object',
         properties: {
-          alias: { type: 'string', example: 'Seeker 4F2A' },
+          alias: { type: 'string', example: 'Anonymous' },
           type: { type: 'string', enum: ['anonymous', 'user'] },
         },
       },

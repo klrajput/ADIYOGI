@@ -89,6 +89,14 @@ async function updatePreferences(context, patch) {
   const update = { ...patch };
   if (update.displayAlias) update.displayAlias = update.displayAlias.trim();
 
+  // Only accounts have a username. For them, keep the session display name in sync so the
+  // header and new posts immediately use the chosen name (anonymous authors stay 'Anonymous').
+  if (update.displayAlias && context && context.kind === 'user' && context.sessionId) {
+    // eslint-disable-next-line global-require
+    const Session = require('../models/Session');
+    await Session.updateOne({ _id: context.sessionId }, { $set: { alias: update.displayAlias } });
+  }
+
   try {
     const preference = await UserPreference.findOneAndUpdate(
       { ownerType, ownerId },

@@ -52,10 +52,10 @@ async function enrichReports(reports, viewerId) {
 
   const [threads, replies] = await Promise.all([
     threadIds.length > 0
-      ? Thread.find({ _id: { $in: threadIds } }).select('_id title boardSlug body status authorAlias')
+      ? Thread.find({ _id: { $in: threadIds } }).select('_id title boardSlug body status authorAlias authorType')
       : [],
     replyIds.length > 0
-      ? Reply.find({ _id: { $in: replyIds } }).select('_id thread body status authorAlias')
+      ? Reply.find({ _id: { $in: replyIds } }).select('_id thread body status authorAlias authorType')
       : [],
   ]);
 
@@ -82,7 +82,11 @@ async function enrichReports(reports, viewerId) {
       ...publicReport,
       targetExcerpt: target ? excerpt(target.body) : null,
       targetStatus: target ? target.status : null,
-      targetAuthorAlias: target ? target.authorAlias : null,
+      targetAuthorAlias: target
+        ? target.authorType === 'anonymous'
+          ? 'Anonymous'
+          : target.authorAlias
+        : null,
       targetThread: thread
         ? { id: String(thread._id), title: thread.title, boardSlug: thread.boardSlug, status: thread.status }
         : null,
