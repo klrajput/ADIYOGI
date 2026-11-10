@@ -1,0 +1,212 @@
+# =============================================================================
+# AdiYogi — continuous integration
+#
+# Runs on every push and pull request targeting `main`.
+#
+# Jobs and ordering (fail fast: lint -> test -> build):
+#   quality        : npm ci, lint both workspaces, client tests, client build
+#   api-tests      : npm ci, server Jest suite (mongodb-memory-server)
+#   security-audit : npm audit on production deps — NON-BLOCKING by design
+#   docker-build   : builds both container images to prove the Dockerfiles work
+#
+# Least privilege: this workflow only reads the repository. It does NOT push
+# images and does NOT deploy. Deployment is done by Render/Vercel from their own
+# Git integrations (see docs/DEPLOYMENT.md).
+# =============================================================================
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# One run per branch/PR; a new push cancels the previous in-flight run.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: no write access to anything.
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20'
+  CI: 'true'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint both workspaces, run the client suite, produce the production SPA build.
+  # ---------------------------------------------------------------------------
+  quality:
+    name: Lint, client tests, client build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies (npm workspaces)
+        run: npm ci
+
+      - name: Lint server and client
+        run: npm run lint
+
+      - name: Test client (Vitest)
+        run: npm run test -w client
+
+      - name: Build client (Vite, production)
+        run: npm run build -w client
+
+      - name: Upload client build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: client/dist
+          if-no-files-found: error
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Server unit + integration + e2e suites. They use mongodb-memory-server, which
+  # downloads a MongoDB binary on first run; cache it so CI does not re-download
+  # it on every build. The cache key follows the lockfile because the server
+  # package pins a mongodb-memory-server version there.
+  # ---------------------------------------------------------------------------
+  api-tests:
+    name: Server tests (Jest + mongodb-memory-server)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Restore mongodb-memory-server binary cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            mongodb-binaries-${{ runner.os }}-
+
+      - name: Install dependencies (npm workspaces)
+        run: npm ci
+
+      - name: Test server
+        run: npm run test -w server
+        env:
+          NODE_ENV: test
+          # Explicit so the cache path above is stable across mongodb-memory-server versions.
+          MONGOMS_DOWNLOAD_DIR: ~/.cache/mongodb-binaries
+
+  # ---------------------------------------------------------------------------
+  # Dependency audit. NON-BLOCKING BY DESIGN (continue-on-error: true):
+  #   - the advisory database changes independently of this repository, so a
+  #     green commit can turn red without any code change;
+  #   - many advisories affect transitive packages with no released fix, and
+  #     blocking merges on them would stop all work;
+  #   - it still runs on every PR and prints the full report so a human reviews
+  #     new high/critical findings before a release. Treat the log as a required
+  #     review artifact, not a pass/fail gate.
+  # ---------------------------------------------------------------------------
+  security-audit:
+    name: Dependency audit (non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: npm audit — production dependencies, high and critical
+        # Non-blocking: see the explanation in the job comment above.
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
+
+  # ---------------------------------------------------------------------------
+  # Build both images without pushing anywhere: this is the "do the Dockerfiles
+  # actually work?" gate that local runs cannot provide. Runs only after lint,
+  # the client build and the API suite are green (fail fast).
+  # ---------------------------------------------------------------------------
+  docker-build:
+    name: Docker build (${{ matrix.image }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: [quality, api-tests]
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - image: api
+            context: .
+            file: ./Dockerfile
+            tag: adiyogi-api:ci
+            load: false
+          - image: web
+            context: .
+            file: ./client/Dockerfile
+            tag: adiyogi-web:ci
+            # The web image is loaded so the smoke test below can start it.
+            load: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          tags: ${{ matrix.tag }}
+          # CI only proves the image builds; images are not published here.
+          push: false
+          load: ${{ matrix.load }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+
+      # Smoke test: nginx starts, /healthz answers 200, and a deep link falls back
+      # to the SPA shell (proves the try_files SPA fallback works). The /api/
+      # proxy is not exercised because no API container exists in this job.
+      - name: Smoke test web image
+        if: matrix.image == 'web'
+        run: |
+          set -euo pipefail
+          docker run -d --name adiyogi-web-smoke -p 8080:80 "${{ matrix.tag }}"
+          ok=0
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8080/healthz; then ok=1; break; fi
+            sleep 1
+          done
+          if [ "$ok" -ne 1 ]; then
+            docker logs adiyogi-web-smoke
+            docker rm -f adiyogi-web-smoke
+            echo "web image never answered /healthz"
+            exit 1
+          fi
+          curl -fsS http://127.0.0.1:8080/boards/this-is-a-deep-link | grep -q '<div id="root">'
+          # Security headers come from client/nginx.conf; assert the CSP is present.
+          curl -fsSI http://127.0.0.1:8080/ | grep -qi '^content-security-policy:'
+          docker logs adiyogi-web-smoke
+          docker rm -f adiyogi-web-smoke

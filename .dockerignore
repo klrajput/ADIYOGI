@@ -1,0 +1,100 @@
+# =============================================================================
+# Docker build context exclusions.
+#
+# Both images are built with the repository root as the Docker build context
+# (npm workspaces need the root manifest + lockfile), so this single file is
+# shared by:
+#   docker build -t adiyogi-api .
+#   docker build -f client/Dockerfile -t adiyogi-web .
+#
+# IMPORTANT: a pattern without a leading slash matches at ANY depth (same
+# semantics as .gitignore). Directories that only exist at the repository root
+# (the legacy v1 tree) are therefore anchored with "/" so that client/src and
+# server/src are never excluded.
+#
+# Keep the context small and never ship secrets or sources the runtime does not
+# need.
+# =============================================================================
+
+# --- version control / editors -------------------------------------------------
+.git
+.gitignore
+.gitattributes
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- CI / repository metadata --------------------------------------------------
+.github
+*.md
+!README.md
+LICENSE
+
+# --- dependencies (installed inside the image, never copied) -------------------
+node_modules
+**/node_modules
+.npm-cache
+**/.npm-cache
+.npm
+**/.npm
+
+# --- build output / caches -----------------------------------------------------
+**/build
+**/dist
+coverage
+**/coverage
+.nyc_output
+**/.nyc_output
+.cache
+**/.cache
+.tmp
+**/.tmp
+*.tsbuildinfo
+test-results
+**/test-results
+playwright-report
+**/playwright-report
+blob-report
+**/blob-report
+junit.xml
+
+# --- secrets / local env (injected at runtime, never baked into an image) ------
+.env
+.env.*
+**/.env
+**/.env.*
+
+# --- documentation / non-runtime sources --------------------------------------
+/docs
+/e2e
+/setup.sh
+/setup.bat
+
+# --- tests (not needed to build or run either image) ---------------------------
+server/tests
+server/tests/**
+**/__tests__
+
+# --- legacy v1 prototype tree (deleted at the end of the overhaul) -------------
+/config
+/src
+/public
+/scripts
+/functions
+/community-forum
+/chatbot
+/mythology-app
+/build
+/firebase.json
+/firestore.rules
+/firestore.indexes.json
+/.firebaserc
+/.firebase
+
+# --- logs ----------------------------------------------------------------------
+**/logs
+*.log
+npm-debug.log*

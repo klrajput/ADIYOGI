@@ -1,0 +1,134 @@
+# =============================================================================
+# AdiYogi — local development stack (MongoDB + API + SPA behind nginx)
+#
+#   cp .env.example .env          # then fill JWT_SECRET/SESSION_SECRET
+#   docker compose up --build     # web http://localhost:8080, api http://localhost:4000
+#
+# This file is for LOCAL DEVELOPMENT. Production uses:
+#   - SPA   -> Vercel  (vercel.json)
+#   - API   -> Render  (render.yaml, Docker runtime, built from ./Dockerfile)
+#   - Mongo -> MongoDB Atlas (MONGODB_URI)
+# See docs/DEPLOYMENT.md.
+#
+# Frontend-only / host-tooling workflow (what `npm run dev` expects) still works
+# and does NOT need the api/web containers:
+#   docker compose up -d mongo     # MongoDB on 127.0.0.1:27017
+#   npm run dev                    # nodemon API :4000 + Vite :5173 (proxies /api)
+# `docker compose up -d mongo` publishes MongoDB on the loopback interface only.
+#
+# Compose automatically reads `.env` (in this directory) for ${...}
+# interpolation. The API service also loads `.env` into the container via
+# env_file. No secret is committed here: every sensitive value comes from `.env`
+# or from the shell. Override the values below per-run, e.g.
+#   WEB_PORT=8081 docker compose up --build
+# =============================================================================
+
+name: adiyogi
+
+services:
+  # ---------------------------------------------------------------------------
+  # MongoDB 7 (local stand-in for Atlas; data survives `docker compose down`
+  # because it lives in the named volume `mongo-data`).
+  # ---------------------------------------------------------------------------
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # Loopback-only publish: enables the host-tooling workflow above without
+    # exposing an unauthenticated MongoDB to the LAN.
+    ports:
+      - '127.0.0.1:${MONGO_PORT:-27017}:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ---------------------------------------------------------------------------
+  # API (Express + Mongoose) — production image, development runtime settings.
+  #
+  # NODE_ENV defaults to development here on purpose: with NODE_ENV=production the
+  # server refuses to boot when CLIENT_URL points at localhost (see
+  # server/src/config/env.js), and `Secure` cookies would be mandatory. Use
+  # `NODE_ENV=production COOKIE_SECURE=true CLIENT_URL=https://... docker compose
+  # up api` only when you intentionally want a production-like local run.
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: adiyogi-api:local
+    restart: unless-stopped
+    # Docker's built-in init (tini) reaps children and forwards signals; the image
+    # also runs node as PID 1 with its own SIGTERM/SIGINT graceful-shutdown path.
+    init: true
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Container network hostname must win over the host-oriented value in .env.
+      MONGODB_URI: ${COMPOSE_MONGODB_URI:-mongodb://mongo:27017/adiyogi}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-adiyogi}
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: '4000'
+      # Browser origin of the SPA in this stack (nginx:80 -> host:8080).
+      CLIENT_URL: ${COMPOSE_CLIENT_URL:-http://localhost:8080}
+      CLIENT_URLS: ${CLIENT_URLS:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SEED_ON_START: ${SEED_ON_START:-true}
+    ports:
+      - '${API_PORT:-4000}:4000'
+    # Give node's graceful-shutdown path (server.close + disconnect) time to run
+    # before compose sends SIGKILL (Docker default is 10s).
+    stop_grace_period: 20s
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  # ---------------------------------------------------------------------------
+  # SPA (Vite build served by nginx). The build uses a RELATIVE API base
+  # ("/api/v1"), and nginx proxies /api/ to the api service, so the browser sees
+  # one origin and cookies stay first-party (SameSite=Lax works).
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        # Empty -> client/src/api/client.js falls back to "/api/v1".
+        # Set VITE_API_BASE_URL only if you want the SPA to call an external API.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    image: adiyogi-web:local
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      # Full API origin including scheme; substituted into client/nginx.conf.
+      API_UPSTREAM: http://api:4000
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1/healthz']
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongo-data:
